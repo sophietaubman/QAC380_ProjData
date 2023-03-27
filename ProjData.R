@@ -29,5 +29,26 @@ View(FOTM_BL_Sub)
 names(FOTM_BL_Sub)[names(FOTM_BL_Sub)== "HEALTH_PHYS_0_TEXT"] <- "HEALTH_PHYS"
 names(FOTM_BL_Sub)[names(FOTM_BL_Sub)== "HEALTH_MENTAL_0_TEXT"] <- "HEALTH_MENTAL"
 
+# Labeling Retirement and Employment as NA:
+
+FOTM_BL_Sub$EMPLOYED[FOTM_BL_Sub$RETIRED == "YES" & FOTM_BL_Sub$EMPLOYED == "NO"] <- NA
+FOTM_BL_Sub$RETIRED[FOTM_BL_Sub$EMPLOYED == "YES" & FOTM_BL_Sub$RETIRED == "NO"] <- NA
+
+# Deleting a Row:
+
+FOTM_BL_Sub_1 <- FOTM_BL_Sub[-1,]
+
+View(FOTM_BL_Sub_1)
+
+# Univariate Bar Graph:
+
+ggplot(data=FOTM_BL_Sub_1)+geom_bar(aes(x=factor(Age)))+ggtitle("Age")
+
+# Univariate Histogram: 
+
+  # Age:
+
+ggplot(FOTM_BL_Sub_1, aes(Age)) + geom_histogram(binwidth = 5) + ggtitle("Age Distribution") + ylab("Number of People")
+
 
 
