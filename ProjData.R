@@ -95,13 +95,78 @@ ggplot(data=FOTM_BL_Sub_1) + geom_bar(aes(x=factor(HEALTH_PHYS, level=c
   
 ################################################################################
 
+# MENTAL HEALTH #
 
+# Bar graph ordered by number of poor mental health days 0 to 30
 
+ggplot(data=FOTM_BL_Sub_1) + geom_bar(aes(x=factor(HEALTH_MENTAL, level=c
+                                                   ("0","1","2","3","4","5","6","7","8","9","10",
+                                                     "11","12","13","14","15","16","17","18","19","20",
+                                                     "21","22","23","24","25","26","27","28","29","30")))) + 
+  xlab("# of Days") + ylab("# of People") + ggtitle("# of Days of Poor Mental Health in Past 30 Days")
 
+################################################################################
 
+# SNAP BENEFITS #
 
+ggplot(data=FOTM_BL_Sub_1)+geom_bar(aes(x=factor(SNAP)))+ggtitle("Snap Benefits") + xlab("") + ylab("# of People") 
 
+################################################################################
 
+# INSURANCE #
+
+ggplot(data=FOTM_BL_Sub_1)+geom_bar(aes(x=factor(INSURANCEYN)))+ggtitle("Insurance") + xlab("") + ylab("# of People") 
+
+################################################################################
+
+# HISPANIC #
+
+FOTM_BL_Sub_1$HISPANIC[FOTM_BL_Sub_1$HISPANIC == "NO"] <- "No"
+FOTM_BL_Sub_1$HISPANIC[FOTM_BL_Sub_1$HISPANIC == "YES"] <- "Yes"
+FOTM_BL_Sub_1$HISPANIC[FOTM_BL_Sub_1$HISPANIC == "DON'T KNOW"] <- "Don't Know"
+
+ggplot(data=FOTM_BL_Sub_1)+geom_bar(aes(x=factor(HISPANIC)))+ggtitle("Hispanic") + xlab("") + ylab("# of People") 
+
+################################################################################
+
+# EMPLOYMENT #
+
+ggplot(data=FOTM_BL_Sub_1)+geom_bar(aes(x=factor(EMPLOYED)))+ggtitle("Employment") + xlab("") + ylab("# of People") 
+
+################################################################################
+
+# RETIREMENT/EMPLOYMENT #
+
+ggplot(data=FOTM_BL_Sub_1)+geom_bar(aes(x=factor(RETIRED)))+ggtitle("Employment Status") + xlab("") + ylab("# of People") 
+
+# This needs to be edited for the sub_1 data set in order to allow for changing NA title #
+
+FOTM_BL_Sub$EMPLOYED[FOTM_BL_Sub$RETIRED == "YES" & FOTM_BL_Sub$EMPLOYED == "NO"] <- NA
+FOTM_BL_Sub$RETIRED[FOTM_BL_Sub$EMPLOYED == "YES" & FOTM_BL_Sub$RETIRED == "NO"] <- NA
+
+# Changing labels #
+
+FOTM_BL_Sub_1$RETIRED[FOTM_BL_Sub_1$RETIRED == "NO"] <- "Unemployed"
+FOTM_BL_Sub_1$RETIRED[FOTM_BL_Sub_1$RETIRED == "YES"] <- "Retired"
+FOTM_BL_Sub_1$RETIRED[FOTM_BL_Sub_1$RETIRED == "DON'T KNOW"] <- "Don't Know"
+
+################################################################################
+
+# DISABLED #
+
+# Data looks ugly, should be reordered #
+
+ggplot(data=FOTM_BL_Sub_1)+geom_bar(aes(x=factor(DISABLED)))+ggtitle("Disabled") + xlab("") + ylab("# of People") 
+
+################################################################################
+
+# GENERAL HEALTH #
+
+# Clean Up Labels Later... 
+
+ggplot(data=FOTM_BL_Sub_1)+geom_bar(aes(x=factor(GENHEALTH)))+ggtitle("General Health Rating") + xlab("") + ylab("# of People") 
+
+################################################################################
 
 
 
