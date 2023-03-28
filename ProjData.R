@@ -1,54 +1,113 @@
-# Uploading Data Set
+################################################################################
+# Uploading Data Set 
+################################################################################
+
 MASTER_CLEAN_DATA_FOTM <- read_excel("~/Downloads/MASTER CLEAN DATA FOTM.xlsx")
 View(MASTER_CLEAN_DATA_FOTM)
 
-# Load libraries needed
+################################################################################
+# Load libraries needed 
+################################################################################
 
 library(descr)
 library(ggplot2)
 
-# DATA MANAGEMENT #
+################################################################################
+# DATA MANAGEMENT 
+################################################################################
 
 # Variables: 
-  # unique ID = loyalty number
-  # Physical
-  # mental health: 
-  # snap status: Y/N 
-  # employment status: Y/N 
-  # Retired: Y/N
-  # ethnicity: Hispanic Y/N
-  # race demographics: American Indian or Alaska Native, Asian, Black or African American, Native Hawaiian or Other Pacific Islander, White ore Caucasian, Oteher Race
+  # Unique ID ("Loyalty card number")
+  # Age ("Age")
+  # Gender ("GENDER") "Man", "Woman", or "Genderqueer/non-binary, neither exclusively man nor woman"
+  # Race** ("RACE") American Indian or Alaska Native, Asian, Black or African American, 
+      # Native Hawaiian or Other Pacific Islander, White ore Caucasian, Oteher Race **Option to select multiple
+  # Hispanic ("HISPANIC") YES/NO
+  # Insurance ("INSURANCEYN") YES/NO
+  # Medicare ("MEDICARE") YES/NO
+  # Medicaid ("MEDICAID") YES/NO
+  # Employed ("EMPLOYED") YES/NO/NA
+  # Retired ("RETIRED") YES/NO/NA
+  # Disabled ("DISABLED") YES/NO
+  # Snap ("SNAP") YES/NO
+  # General Health ("GENHEALTH") "Poor" = 1, "Fair, or" = 2, "Good" = 3, "Very good" = 4, "Excellent" = 5
+  # Physical Health ("HEALTH_PHYS") Number of days of poor physical health in past 30 days
+  # Mental Health ("HEALTH_MENTAL") Number of days of poor mental health in past 30 days
 
-# Make New Subset of Data Using Variables of Interest:
+################################################################################
+# Make New Subset of Data Using Variables of Interest
+################################################################################
 
-FOTM_BL_Sub <- MASTER_CLEAN_DATA_FOTM[,c("Loyalty card number","Age", "GENDER","RACE","HISPANIC","INSURANCEYN","MEDICARE","MEDICAID","EMPLOYED","RETIRED","DISABLED","SNAP","GENHEALTH","HEALTH_PHYS_0_TEXT","HEALTH_MENTAL_0_TEXT")]
+FOTM_BL_Sub <- MASTER_CLEAN_DATA_FOTM[,c("Loyalty card number","Age", "GENDER",
+                                         "RACE","HISPANIC","INSURANCEYN","MEDICARE",
+                                         "MEDICAID","EMPLOYED","RETIRED","DISABLED",
+                                         "SNAP","GENHEALTH","HEALTH_PHYS_0_TEXT",
+                                         "HEALTH_MENTAL_0_TEXT")]
 View(FOTM_BL_Sub)
 
-# Renaming Variables:
+################################################################################
+# Renaming Variables
+################################################################################
 
 names(FOTM_BL_Sub)[names(FOTM_BL_Sub)== "HEALTH_PHYS_0_TEXT"] <- "HEALTH_PHYS"
 names(FOTM_BL_Sub)[names(FOTM_BL_Sub)== "HEALTH_MENTAL_0_TEXT"] <- "HEALTH_MENTAL"
 
-# Labeling Retirement and Employment as NA:
+################################################################################
+# Labeling Retirement and Employment as NA
+################################################################################
 
 FOTM_BL_Sub$EMPLOYED[FOTM_BL_Sub$RETIRED == "YES" & FOTM_BL_Sub$EMPLOYED == "NO"] <- NA
 FOTM_BL_Sub$RETIRED[FOTM_BL_Sub$EMPLOYED == "YES" & FOTM_BL_Sub$RETIRED == "NO"] <- NA
 
-# Deleting a Row:
+################################################################################
+# Deleting a Row
+################################################################################
 
 FOTM_BL_Sub_1 <- FOTM_BL_Sub[-1,]
-
 View(FOTM_BL_Sub_1)
 
-# Univariate Bar Graph:
+################################################################################
+# Univariate Graphs for Each Variable of Interest 
+################################################################################
+
+# AGE # 
+
+  # Univariate Bar Graph:
 
 ggplot(data=FOTM_BL_Sub_1)+geom_bar(aes(x=factor(Age)))+ggtitle("Age")
 
-# Univariate Histogram: 
+  # Univariate Histogram: 
 
-  # Age:
+ggplot(FOTM_BL_Sub_1, aes(Age)) + geom_histogram(binwidth = 5) + ggtitle("Age Distribution") + 
+  ylab("Number of People")
 
-ggplot(FOTM_BL_Sub_1, aes(Age)) + geom_histogram(binwidth = 5) + ggtitle("Age Distribution") + ylab("Number of People")
+################################################################################
+
+# PHYSICAL HEALTH #
+
+# Bar graph ordered by number of poor health days 0 to 30
+
+ggplot(data=FOTM_BL_Sub_1) + geom_bar(aes(x=factor(HEALTH_PHYS, level=c
+                                                 ("0","1","2","3","4","5","6","7","8","9","10",
+                                                   "11","12","13","14","15","16","17","18","19","20",
+                                                   "21","22","23","24","25","26","27","28","29","30")))) + 
+  xlab("# of Days") + ylab("# of People") + ggtitle("# of Days of Poor Health in Past 30 Days")
+  
+################################################################################
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
