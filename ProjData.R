@@ -1,5 +1,8 @@
-# Uploading Data Set
-MASTER_CLEAN_DATA_FOTM <- read_excel("/Volumes/qac380/Data and Codebooks 2023/RIPHI/FOTM Data/MASTER CLEAN DATA FOTM.xlsx")
+################################################################################
+# Uploading Data Set 
+################################################################################
+
+MASTER_CLEAN_DATA_FOTM <- read_excel("~/Downloads/MASTER CLEAN DATA FOTM.xlsx")
 View(MASTER_CLEAN_DATA_FOTM)
 
 ################################################################################
@@ -14,22 +17,22 @@ library(ggplot2)
 ################################################################################
 
 # Variables: 
-# Unique ID ("Loyalty card number")
-# Age ("Age")
-# Gender ("GENDER") "Man", "Woman", or "Genderqueer/non-binary, neither exclusively man nor woman"
-# Race** ("RACE") American Indian or Alaska Native, Asian, Black or African American, 
-# Native Hawaiian or Other Pacific Islander, White ore Caucasian, Oteher Race **Option to select multiple
-# Hispanic ("HISPANIC") YES/NO
-# Insurance ("INSURANCEYN") YES/NO
-# Medicare ("MEDICARE") YES/NO
-# Medicaid ("MEDICAID") YES/NO
-# Employed ("EMPLOYED") YES/NO/NA
-# Retired ("RETIRED") YES/NO/NA
-# Disabled ("DISABLED") YES/NO
-# Snap ("SNAP") YES/NO
-# General Health ("GENHEALTH") "Poor" = 1, "Fair, or" = 2, "Good" = 3, "Very good" = 4, "Excellent" = 5
-# Physical Health ("HEALTH_PHYS") Number of days of poor physical health in past 30 days
-# Mental Health ("HEALTH_MENTAL") Number of days of poor mental health in past 30 days
+  # Unique ID ("Loyalty card number")
+  # Age ("Age")
+  # Gender ("GENDER") "Man", "Woman", or "Genderqueer/non-binary, neither exclusively man nor woman"
+  # Race** ("RACE") American Indian or Alaska Native, Asian, Black or African American, 
+      # Native Hawaiian or Other Pacific Islander, White ore Caucasian, Oteher Race **Option to select multiple
+  # Hispanic ("HISPANIC") YES/NO
+  # Insurance ("INSURANCEYN") YES/NO
+  # Medicare ("MEDICARE") YES/NO
+  # Medicaid ("MEDICAID") YES/NO
+  # Employed ("EMPLOYED") YES/NO/NA
+  # Retired ("RETIRED") YES/NO/NA
+  # Disabled ("DISABLED") YES/NO
+  # Snap ("SNAP") YES/NO
+  # General Health ("GENHEALTH") "Poor" = 1, "Fair, or" = 2, "Good" = 3, "Very good" = 4, "Excellent" = 5
+  # Physical Health ("HEALTH_PHYS") Number of days of poor physical health in past 30 days
+  # Mental Health ("HEALTH_MENTAL") Number of days of poor mental health in past 30 days
 
 ################################################################################
 # Make New Subset of Data Using Variables of Interest
@@ -69,11 +72,11 @@ View(FOTM_BL_Sub_1)
 
 # AGE # 
 
-# Univariate Bar Graph:
+  # Univariate Bar Graph:
 
 ggplot(data=FOTM_BL_Sub_1)+geom_bar(aes(x=factor(Age)))+ggtitle("Age")
 
-# Univariate Histogram: 
+  # Univariate Histogram: 
 
 ggplot(FOTM_BL_Sub_1, aes(Age)) + geom_histogram(binwidth = 5) + ggtitle("Age Distribution") + 
   ylab("Number of People")
@@ -84,12 +87,28 @@ ggplot(FOTM_BL_Sub_1, aes(Age)) + geom_histogram(binwidth = 5) + ggtitle("Age Di
 
 # Bar graph ordered by number of poor health days 0 to 30
 
-ggplot(data=FOTM_BL_Sub_1) + geom_bar(aes(x=factor(HEALTH_PHYS, level=c
-                                                   ("0","1","2","3","4","5","6","7","8","9","10",
-                                                     "11","12","13","14","15","16","17","18","19","20",
-                                                     "21","22","23","24","25","26","27","28","29","30")))) + 
+ggplot(data=FOTM_BL_Sub_1) + geom_bar(aes(x=factor(HEALTH_PHYS, level=c("0","Up to One Week","8","9","10","11","12","13",
+                                                                        "14","15","16","17","18","19","20",
+                                                                        "21","22","23","24","25","26","27",
+                                                                        "28","29","30")))) + 
   xlab("# of Days") + ylab("# of People") + ggtitle("# of Days of Poor Health in Past 30 Days")
 
+# Grouping Variables into 4 categories... THIS ISN'T DONE
+
+condition1 <- FOTM_BL_Sub_1$HEALTH_PHYS == 1|FOTM_BL_Sub_1$HEALTH_PHYS == 2|FOTM_BL_Sub_1$HEALTH_PHYS == 3|FOTM_BL_Sub_1$HEALTH_PHYS == 4||FOTM_BL_Sub_1$HEALTH_PHYS == 5||FOTM_BL_Sub_1$HEALTH_PHYS == 6|
+  FOTM_BL_Sub_1$HEALTH_PHYS == 7
+  
+FOTM_BL_Sub_1$HEALTH_PHYS_CAT[condition1] <- 1
+  
+condition2 <- FOTM_BL_Sub_1$HEALTH_PHYS == 8|FOTM_BL_Sub_1$HEALTH_PHYS == 9|FOTM_BL_Sub_1$HEALTH_PHYS == 10|
+  FOTM_BL_Sub_1$HEALTH_PHYS == 11|FOTM_BL_Sub_1$HEALTH_PHYS == 12||FOTM_BL_Sub_1$HEALTH_PHYS == 13|
+  FOTM_BL_Sub_1$HEALTH_PHYS == 14|FOTM_BL_Sub_1$HEALTH_PHYS == 15|FOTM_BL_Sub_1$HEALTH_PHYS == 16|FOTM_BL_Sub_1$HEALTH_PHYS == 17|
+  FOTM_BL_Sub_1$HEALTH_PHYS == 18||FOTM_BL_Sub_1$HEALTH_PHYS == 19||FOTM_BL_Sub_1$HEALTH_PHYS == 20|
+  FOTM_BL_Sub_1$HEALTH_PHYS == 21|FOTM_BL_Sub_1$HEALTH_PHYS == 22|FOTM_BL_Sub_1$HEALTH_PHYS == 23|
+  FOTM_BL_Sub_1$HEALTH_PHYS == 24|FOTM_BL_Sub_1$HEALTH_PHYS == 25||FOTM_BL_Sub_1$HEALTH_PHYS == 26|
+  FOTM_BL_Sub_1$HEALTH_PHYS == 27|FOTM_BL_Sub_1$HEALTH_PHYS == 28|FOTM_BL_Sub_1$HEALTH_PHYS == 29
+
+FOTM_BL_Sub_1$HEALTH_PHYS_CAT[condition2] <- 2
 ################################################################################
 
 # MENTAL HEALTH #
@@ -161,31 +180,19 @@ ggplot(data=FOTM_BL_Sub_1)+geom_bar(aes(x=factor(DISABLED)))+ggtitle("Disabled")
 
 # Clean Up Labels Later... 
 
-ggplot(data=FOTM_BL_Sub_1)+geom_bar(aes(x=factor(GENHEALTH)))+ggtitle("General Health Rating") + xlab("") + ylab("# of People") 
+FOTM_BL_Sub_1$GENHEALTH[FOTM_BL_Sub_1$GENHEALTH == "Fair, or"] <- "Fair"
+FOTM_BL_Sub$GENHEALTH[FOTM_BL_Sub$GENHEALTH == "DON'T KNOW"] <- NA
+
+ggplot(data=FOTM_BL_Sub_1)+geom_bar(aes(x=factor(GENHEALTH,level=c(NA, "Poor","Fair","Good","Very Good","Excellent")))) +
+   ggtitle("General Health Rating") + xlab("") + ylab("# of People") 
 
 ################################################################################
-# PERCENTAGE SUMMARY FOR DATAFRAME LEVELS #
-# gender 
-FOTM_BL_Sub_1 %>% group_by(GENDER) %>% summarise(Percentage=n()/nrow(.))
-# race 
-FOTM_BL_Sub_1 %>% group_by(RACE) %>% summarise(Percentage=n()/nrow(.))
-# hispanic 
-FOTM_BL_Sub_1 %>% group_by(HISPANIC) %>% summarise(Percentage=n()/nrow(.))
-# insurance
-FOTM_BL_Sub_1 %>% group_by(INSURANCEYN) %>% summarise(Percentage=n()/nrow(.))
-# medicare
-FOTM_BL_Sub_1 %>% group_by(MEDICARE) %>% summarise(Percentage=n()/nrow(.))
-# medicaid
-FOTM_BL_Sub_1 %>% group_by(MEDICAID) %>% summarise(Percentage=n()/nrow(.))
-# employment status
-FOTM_BL_Sub_1 %>% group_by(EMPLOYED) %>% summarise(Percentage=n()/nrow(.))
-# retirement
-FOTM_BL_Sub_1 %>% group_by(RETIRED) %>% summarise(Percentage=n()/nrow(.))
-# disability
-FOTM_BL_Sub_1 %>% group_by(DISABLED) %>% summarise(Percentage=n()/nrow(.))
-# snap
-FOTM_BL_Sub_1 %>% group_by(SNAP) %>% summarise(Percentage=n()/nrow(.))
-# genhealth
-FOTM_BL_Sub_1 %>% group_by(GENHEALTH) %>% summarise(Percentage=n()/nrow(.))
 
-################################################################################
+
+
+
+
+
+
+
+
