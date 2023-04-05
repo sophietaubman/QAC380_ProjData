@@ -87,28 +87,26 @@ ggplot(FOTM_BL_Sub_1, aes(Age)) + geom_histogram(binwidth = 5) + ggtitle("Age Di
 
 # Bar graph ordered by number of poor health days 0 to 30
 
-ggplot(data=FOTM_BL_Sub_1) + geom_bar(aes(x=factor(HEALTH_PHYS, level=c("0","Up to One Week","8","9","10","11","12","13",
-                                                                        "14","15","16","17","18","19","20",
-                                                                        "21","22","23","24","25","26","27",
-                                                                        "28","29","30")))) + 
-  xlab("# of Days") + ylab("# of People") + ggtitle("# of Days of Poor Health in Past 30 Days")
+ggplot(data=FOTM_BL_Sub_1) + geom_bar(aes(x=factor(Health_Phys_Weeks, level=c("None","One Week","More Than One Week","Every Day")))) + 
+  xlab("# of Days") + ylab("# of People") + ggtitle("Poor Physical Health in Past 30 Days")
 
-# Grouping Variables into 4 categories... THIS ISN'T DONE
+# Grouping Variables into 4 categories... 
 
-condition1 <- FOTM_BL_Sub_1$HEALTH_PHYS == 1|FOTM_BL_Sub_1$HEALTH_PHYS == 2|FOTM_BL_Sub_1$HEALTH_PHYS == 3|FOTM_BL_Sub_1$HEALTH_PHYS == 4||FOTM_BL_Sub_1$HEALTH_PHYS == 5||FOTM_BL_Sub_1$HEALTH_PHYS == 6|
-  FOTM_BL_Sub_1$HEALTH_PHYS == 7
-  
-FOTM_BL_Sub_1$HEALTH_PHYS_CAT[condition1] <- 1
-  
-condition2 <- FOTM_BL_Sub_1$HEALTH_PHYS == 8|FOTM_BL_Sub_1$HEALTH_PHYS == 9|FOTM_BL_Sub_1$HEALTH_PHYS == 10|
-  FOTM_BL_Sub_1$HEALTH_PHYS == 11|FOTM_BL_Sub_1$HEALTH_PHYS == 12||FOTM_BL_Sub_1$HEALTH_PHYS == 13|
-  FOTM_BL_Sub_1$HEALTH_PHYS == 14|FOTM_BL_Sub_1$HEALTH_PHYS == 15|FOTM_BL_Sub_1$HEALTH_PHYS == 16|FOTM_BL_Sub_1$HEALTH_PHYS == 17|
-  FOTM_BL_Sub_1$HEALTH_PHYS == 18||FOTM_BL_Sub_1$HEALTH_PHYS == 19||FOTM_BL_Sub_1$HEALTH_PHYS == 20|
-  FOTM_BL_Sub_1$HEALTH_PHYS == 21|FOTM_BL_Sub_1$HEALTH_PHYS == 22|FOTM_BL_Sub_1$HEALTH_PHYS == 23|
-  FOTM_BL_Sub_1$HEALTH_PHYS == 24|FOTM_BL_Sub_1$HEALTH_PHYS == 25||FOTM_BL_Sub_1$HEALTH_PHYS == 26|
-  FOTM_BL_Sub_1$HEALTH_PHYS == 27|FOTM_BL_Sub_1$HEALTH_PHYS == 28|FOTM_BL_Sub_1$HEALTH_PHYS == 29
+FOTM_BL_Sub_1$HEALTH_PHYS <- as.numeric(as.character(FOTM_BL_Sub_1$HEALTH_PHYS))
 
-FOTM_BL_Sub_1$HEALTH_PHYS_CAT[condition2] <- 2
+FOTM_BL_Sub_1$Health_Phys_Weeks[FOTM_BL_Sub_1$HEALTH_PHYS==0]<-"None"
+FOTM_BL_Sub_1$Health_Phys_Weeks[FOTM_BL_Sub_1$HEALTH_PHYS>=1 & FOTM_BL_Sub_1$HEALTH_PHYS<8]<-"One Week"
+FOTM_BL_Sub_1$Health_Phys_Weeks[FOTM_BL_Sub_1$HEALTH_PHYS>=8 & FOTM_BL_Sub_1$HEALTH_PHYS<30]<-"More Than One Week"
+FOTM_BL_Sub_1$Health_Phys_Weeks[FOTM_BL_Sub_1$HEALTH_PHYS==30]<-"Every Day"
+FOTM_BL_Sub_1$Health_Phys_Weeks <- as.factor(FOTM_BL_Sub_1$Health_Phys_Weeks)
+freq(FOTM_BL_Sub_1$Health_Phys_Weeks, plot=F)
+freq(FOTM_BL_Sub_1$HEALTH_PHYS, plot=F)
+
+size[mydata$HHLDSIZE==2]<-"Two"
+mydata$Household_size[mydata$HHLDSIZE>2]<-"More than two"
+mydata$Household_size <-as.factor(mydata$Household_size)
+freq(mydata$Household_size, plot=F)
+
 ################################################################################
 
 # MENTAL HEALTH #
