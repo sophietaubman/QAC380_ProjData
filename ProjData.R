@@ -67,6 +67,13 @@ FOTM_BL_Sub_1 <- FOTM_BL_Sub[-1,]
 View(FOTM_BL_Sub_1)
 
 ################################################################################
+# Deleting a Column
+################################################################################
+
+FOTM_BL_Sub_1 <- FOTM_BL_Sub_1[,-18]
+View(FOTM_BL_Sub_1)
+
+################################################################################
 # Univariate Graphs for Each Variable of Interest 
 ################################################################################
 
@@ -90,10 +97,10 @@ ggplot(FOTM_BL_Sub_1, aes(Age)) + geom_histogram(binwidth = 5) + ggtitle("Age Di
 ggplot(data=FOTM_BL_Sub_1) + geom_bar(aes(x=factor(Health_Phys_Weeks, level=c("None","One Week","More Than One Week","Every Day")))) + 
   xlab("# of Days") + ylab("# of People") + ggtitle("Poor Physical Health in Past 30 Days")
 
-# Grouping Variables into 4 categories... 
-
+# Change Physical Health from Character Variable to Numeric
 FOTM_BL_Sub_1$HEALTH_PHYS <- as.numeric(as.character(FOTM_BL_Sub_1$HEALTH_PHYS))
 
+# Create Categories
 FOTM_BL_Sub_1$Health_Phys_Weeks[FOTM_BL_Sub_1$HEALTH_PHYS==0]<-"None"
 FOTM_BL_Sub_1$Health_Phys_Weeks[FOTM_BL_Sub_1$HEALTH_PHYS>=1 & FOTM_BL_Sub_1$HEALTH_PHYS<8]<-"One Week"
 FOTM_BL_Sub_1$Health_Phys_Weeks[FOTM_BL_Sub_1$HEALTH_PHYS>=8 & FOTM_BL_Sub_1$HEALTH_PHYS<30]<-"More Than One Week"
@@ -102,10 +109,15 @@ FOTM_BL_Sub_1$Health_Phys_Weeks <- as.factor(FOTM_BL_Sub_1$Health_Phys_Weeks)
 freq(FOTM_BL_Sub_1$Health_Phys_Weeks, plot=F)
 freq(FOTM_BL_Sub_1$HEALTH_PHYS, plot=F)
 
-size[mydata$HHLDSIZE==2]<-"Two"
-mydata$Household_size[mydata$HHLDSIZE>2]<-"More than two"
-mydata$Household_size <-as.factor(mydata$Household_size)
-freq(mydata$Household_size, plot=F)
+# Load tidyverse
+library(tidyverse)
+
+# Drop NA From Graphs
+FOTM_BL_Sub_1 %>%
+  drop_na(Health_Phys_Weeks) %>%
+  ggplot(aes(x=factor(Health_Phys_Weeks, levels=c("None","One Week","More Than One Week","Every Day")))) +
+  geom_bar() +
+  xlab("# of Days") + ylab("# of People") + ggtitle("# of Days of Poor Physical Health in Past 30 Days")
 
 ################################################################################
 
@@ -118,6 +130,27 @@ ggplot(data=FOTM_BL_Sub_1) + geom_bar(aes(x=factor(HEALTH_MENTAL, level=c
                                                      "11","12","13","14","15","16","17","18","19","20",
                                                      "21","22","23","24","25","26","27","28","29","30")))) + 
   xlab("# of Days") + ylab("# of People") + ggtitle("# of Days of Poor Mental Health in Past 30 Days")
+
+# Change Mental Health from Character Variable to Numeric
+FOTM_BL_Sub_1$HEALTH_MENTAL <- as.numeric(as.character(FOTM_BL_Sub_1$HEALTH_MENTAL))
+
+# Create Categories
+FOTM_BL_Sub_1$Health_Ment_Weeks[FOTM_BL_Sub_1$HEALTH_MENTAL==0]<-"None"
+FOTM_BL_Sub_1$Health_Ment_Weeks[FOTM_BL_Sub_1$HEALTH_MENTAL>=1 & FOTM_BL_Sub_1$HEALTH_MENTAL<8]<-"One Week"
+FOTM_BL_Sub_1$Health_Ment_Weeks[FOTM_BL_Sub_1$HEALTH_MENTAL>=8 & FOTM_BL_Sub_1$HEALTH_MENTAL<30]<-"More Than One Week"
+FOTM_BL_Sub_1$Health_Ment_Weeks[FOTM_BL_Sub_1$HEALTH_MENTAL==30]<-"Every Day"
+FOTM_BL_Sub_1$Health_Ment_Weeks <- as.factor(FOTM_BL_Sub_1$Health_Ment_Weeks)
+freq(FOTM_BL_Sub_1$Health_Ment_Weeks, plot=F)
+freq(FOTM_BL_Sub_1$HEALTH_MENTAL, plot=F)
+
+# Load tidyverse
+library(tidyverse)
+
+# Drop NA From Graphs
+FOTM_BL_Sub_1 %>%
+  drop_na(Health_Ment_Weeks) %>%
+  ggplot(aes(x=factor(Health_Ment_Weeks, levels=c("None","One Week","More Than One Week","Every Day")))) +
+  geom_bar() + xlab("# of Days") + ylab("# of People") + ggtitle("# of Days of Poor Mental Health in Past 30 Days")
 
 ################################################################################
 
@@ -168,15 +201,19 @@ FOTM_BL_Sub_1$RETIRED[FOTM_BL_Sub_1$RETIRED == "DON'T KNOW"] <- "Don't Know"
 
 # DISABLED #
 
-# Data looks ugly, should be reordered #
+ggplot(data=FOTM_BL_Sub_1)+geom_bar(aes(x=factor(DISABLED)))+ggtitle("Disabled") + xlab("") + ylab("# of People")
 
-ggplot(data=FOTM_BL_Sub_1)+geom_bar(aes(x=factor(DISABLED)))+ggtitle("Disabled") + xlab("") + ylab("# of People") 
+FOTM_BL_Sub_1$DISABLED[FOTM_BL_Sub_1$DISABLED == "DON'T KNOW"] <- NA
+FOTM_BL_Sub_1$DISABLED[FOTM_BL_Sub_1$DISABLED == "REFUSED"] <- NA
+
+FOTM_BL_Sub_1 %>%
+  drop_na(DISABLED) %>%
+  ggplot(aes(x=factor(DISABLED, levels=c("NO","YES")))) +
+  geom_bar() + xlab("") + ylab("# of People") + ggtitle("Ability Status")
 
 ################################################################################
 
 # GENERAL HEALTH #
-
-# Clean Up Labels Later... 
 
 FOTM_BL_Sub_1$GENHEALTH[FOTM_BL_Sub_1$GENHEALTH == "Fair, or"] <- "Fair"
 FOTM_BL_Sub$GENHEALTH[FOTM_BL_Sub$GENHEALTH == "DON'T KNOW"] <- NA
@@ -185,6 +222,66 @@ ggplot(data=FOTM_BL_Sub_1)+geom_bar(aes(x=factor(GENHEALTH,level=c(NA, "Poor","F
    ggtitle("General Health Rating") + xlab("") + ylab("# of People") 
 
 ################################################################################
+# Bivariate Graphing!
+################################################################################
+
+# Categorical-Categorical (Crosstabs)
+  # tab1 <- table(myData$CategResponseVar, myData$CategExplanatoryVar)
+  # tab1_colProp <- prop.table(tab1, 2) # column proportions
+  # tab1_rowProp <- prop.table(tab1, 1) # row proportions
+  # tab1_cellProp <- prop.table(tab1) # cell proportions
+
+# Categorical-Categorical (Plot)
+  # visualization - Assumes response variable is coded as 0/1
+  # ggplot(data=graph_data) + stat_summary(aes(x=CategExplanatoryVar, y=BinaryResponseVar), fun=”mean”, geom=”bar”) + ylab(“Proportion of Subjects at each Response Level within each group”) + ggtitle(“Informative Title Here”)
+
+# Categorical-Quantitative (Means by Group)
+  # numbers
+  # by(myData$QuantResponseVar, myData$CategExplanatoryVar, mean, na.rm = TRUE) 
+  # by(myData$QuantResponseVar, myData$CategExplanatoryVar, sd, na.rm = TRUE) 
+  # by(myData$QuantResponseVar, myData$CategExplanatoryVar, length) 
+
+# Categorical-Quantitative (Plot)
+  # Option 1: Bar plot
+  # ggplot(data=myData)+ stat_summary(aes(x=CategExplanatoryVar, y=QuantResponseVar), fun=mean, geom=”bar”)
+
+# Option 2: Boxplot
+  # ggplot(data=myData)+ geom_boxplot(aes(x=CategExplanatoryVar, y=QuantResponseVar))+ ggtitle(“Descriptive Title Here”)
+
+# Quantitative-Quantitative (Plot)
+  # ggplot(data=myData)+ geom_point(aes(x=QuantExplanatoryVar, y=QuantResponseVar))+ geom_smooth(aes(x=QuantExplanatoryVar, y=QuantResponseVar), method="lm")
+
+################################################################################
+# SNAP Status vs. Age
+################################################################################
+
+# Collapsing Responses Across Variables
+
+# FOTM_BL_Sub_1$SNAP <- NA
+# myData$anxiety[myData$socphob == 0&myData$gad==0&myData$panic == 0&myData$agora==0&myData$ocd == 0] <- 0
+# myData$anxiety[myData$socphob == 1|myData$gad==1|myData$panic == 1|myData$agora==1|myData$ocd == 1] <- 1
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
