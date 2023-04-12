@@ -83,6 +83,14 @@ View(FOTM_BL_Sub_1)
 
 ggplot(data=FOTM_BL_Sub_1)+geom_bar(aes(x=factor(Age)))+ggtitle("Age")
 
+# Create Categories
+
+FOTM_BL_Sub_1$Age_Groups[FOTM_BL_Sub_1$Age >= 26 & FOTM_BL_Sub_1$Age < 63] <- "26-63 Years"
+FOTM_BL_Sub_1$Age_Groups[FOTM_BL_Sub_1$Age >= 63 & FOTM_BL_Sub_1$Age < 71] <- "63-71 Years"
+FOTM_BL_Sub_1$Age_Groups[FOTM_BL_Sub_1$Age >= 71 & FOTM_BL_Sub_1$Age < 78] <- "71-78 Years"
+FOTM_BL_Sub_1$Age_Groups[FOTM_BL_Sub_1$Age >= 78] <- "Over 78"
+
+
   # Univariate Histogram: 
 
 ggplot(FOTM_BL_Sub_1, aes(Age)) + geom_histogram(binwidth = 5) + ggtitle("Age Distribution") + 
@@ -216,7 +224,7 @@ FOTM_BL_Sub_1 %>%
 # GENERAL HEALTH #
 
 FOTM_BL_Sub_1$GENHEALTH[FOTM_BL_Sub_1$GENHEALTH == "Fair, or"] <- "Fair"
-FOTM_BL_Sub$GENHEALTH[FOTM_BL_Sub$GENHEALTH == "DON'T KNOW"] <- NA
+FOTM_BL_Sub_1$GENHEALTH[FOTM_BL_Sub_1$GENHEALTH == "DON'T KNOW"] <- NA
 
 ggplot(data=FOTM_BL_Sub_1)+geom_bar(aes(x=factor(GENHEALTH,level=c(NA, "Poor","Fair","Good","Very Good","Excellent")))) +
    ggtitle("General Health Rating") + xlab("") + ylab("# of People") 
@@ -252,31 +260,36 @@ ggplot(data=FOTM_BL_Sub_1)+geom_bar(aes(x=factor(GENHEALTH,level=c(NA, "Poor","F
   # ggplot(data=myData)+ geom_point(aes(x=QuantExplanatoryVar, y=QuantResponseVar))+ geom_smooth(aes(x=QuantExplanatoryVar, y=QuantResponseVar), method="lm")
 
 ################################################################################
-# SNAP Status vs. Age
+# SNAP vs. Age, Health (General, Mental, Physical)
 ################################################################################
 
-# Collapsing Responses Across Variables
+# visualization - Assumes response variable is coded as 0/1
+FOTM_BL_Sub_1$SNAP[FOTM_BL_Sub_1$SNAP == "NO"] <- 0
+FOTM_BL_Sub_1$SNAP[FOTM_BL_Sub_1$SNAP == "YES"] <- 1
 
-# FOTM_BL_Sub_1$SNAP <- NA
-# myData$anxiety[myData$socphob == 0&myData$gad==0&myData$panic == 0&myData$agora==0&myData$ocd == 0] <- 0
-# myData$anxiety[myData$socphob == 1|myData$gad==1|myData$panic == 1|myData$agora==1|myData$ocd == 1] <- 1
+# AGE v. SNAP
+ggplot(data=FOTM_BL_Sub_1) + stat_summary(aes(x=Age_Groups, y=SNAP), fun="mean", geom="bar") + ylab("Proportion of Subjects with SNAP Benefits") + xlab("Age Groups") + ggtitle("SNAP Benefits by Age Groups")
 
+# General Health v. SNAP
+ggplot(data=FOTM_BL_Sub_1) + stat_summary(aes(x=GENHEALTH, y=SNAP), fun="mean", geom="bar") + ylab("Proportion of Subjects with SNAP Benefits") + xlab("General Health Rating") + ggtitle("SNAP Benefits by General Health Ratings")
 
+# Mental Health v. SNAP
+ggplot(data=FOTM_BL_Sub_1) + stat_summary(aes(x=Health_Ment_Weeks, y=SNAP), fun="mean", geom="bar") + ylab("Proportion of Subjects with SNAP Benefits") + xlab("Mental Health") + ggtitle("SNAP Benefits by Mental Health")
 
+# Physical Health v. SNAP
+ggplot(data=FOTM_BL_Sub_1) + stat_summary(aes(x=Health_Phys_Weeks, y=SNAP), fun="mean", geom="bar") + ylab("Proportion of Subjects with SNAP Benefits") + xlab("Physical Health") + ggtitle("SNAP Benefits by Physical Health")
 
+# Age v. Mental Health
+ggplot(data=FOTM_BL_Sub_1) + stat_summary(aes(x=Age_Groups, y=Health_Ment_Weeks), fun="mean", geom="bar") + ylab("Proportion of Subjects with SNAP Benefits") + xlab("Mental Health") + ggtitle("SNAP Benefits by Mental Health")
 
+# Categorical-Quantitative (Plot)
+# Option 1: Bar plot
+ggplot(data=FOTM_BL_Sub_1)+ stat_summary(aes(x=Health_Ment_Weeks, y=RETIRED), fun=mean, geom="bar")
 
-
-
-
-
-
-
-
-
-
-
-
+FOTM_BL_Sub_1 %>%
+  drop_na(RETIRED) %>%
+  ggplot(aes(x=factor(RETIRED, levels=c("NO","YES")))) +
+  geom_bar() + xlab("") + ylab("# of People") + ggtitle("Ability Status")
 
 
 
