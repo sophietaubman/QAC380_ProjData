@@ -56,8 +56,11 @@ names(FOTM_BL)[names(FOTM_BL)== "HEALTH_MENTAL_0_TEXT"] <- "HEALTH_MENTAL"
 # Labeling Retirement and Employment as NA
 ################################################################################
 
-FOTM_BL$EMPLOYED[FOTM_BL$RETIRED == "YES" & FOTM_BL$EMPLOYED == "NO"] <- "Retired"
-FOTM_BL$RETIRED[FOTM_BL$EMPLOYED == "YES" & FOTM_BL$RETIRED == "NO"] <- "Employed"
+FOTM_BL$Employment[FOTM_BL$RETIRED == "YES" & FOTM_BL$EMPLOYED == "NO"] <- "Retired"
+FOTM_BL$Employment[FOTM_BL$EMPLOYED == "YES" & FOTM_BL$RETIRED == "NO"] <- "Employed"
+FOTM_BL$Employment[FOTM_BL$RETIRED == "NO" & FOTM_BL$EMPLOYED == "NO"] <- "Unemployed"
+FOTM_BL$Employment[FOTM_BL$RETIRED == "DON'T KNOW" & FOTM_BL$EMPLOYED == "NO"] <- NA
+
 
 ################################################################################
 # Deleting a Row
@@ -67,11 +70,16 @@ FOTM_BL <- FOTM_BL[-1,]
 View(FOTM_BL)
 
 ################################################################################
-# Deleting a Column
+# Deleting a Row
 ################################################################################
 
-FOTM_BL_Sub_1 <- FOTM_BL_Sub_1[,-18]
-View(FOTM_BL_Sub_1)
+FOTM_BL <- FOTM_BL[,c("Loyalty card number","Age", "GENDER",
+                                     "HISPANIC","INSURANCEYN",
+                                      "Employment","DISABLED",
+                                     "SNAP","GENHEALTH","HEALTH_PHYS",
+                                      "HEALTH_MENTAL","HUNGRY","Health_Ment_Weeks","Health_Phys_Weeks","Age_Groups")]
+View(FOTM_BL)
+
 
 ################################################################################
 # Univariate Graphs for Each Variable of Interest 
@@ -81,19 +89,25 @@ View(FOTM_BL_Sub_1)
 
 # Univariate Bar Graph:
 
-ggplot(data=FOTM_BL_Sub_1)+geom_bar(aes(x=factor(Age)))+ggtitle("Age")
+ggplot(data=FOTM_BL)+geom_bar(aes(x=factor(Age)))+ggtitle("Age")
 
 # Create Categories
 
-FOTM_BL_Sub_1$Age_Groups[FOTM_BL_Sub_1$Age >= 26 & FOTM_BL_Sub_1$Age < 63] <- "26-63 Years"
-FOTM_BL_Sub_1$Age_Groups[FOTM_BL_Sub_1$Age >= 63 & FOTM_BL_Sub_1$Age < 71] <- "63-71 Years"
-FOTM_BL_Sub_1$Age_Groups[FOTM_BL_Sub_1$Age >= 71 & FOTM_BL_Sub_1$Age < 78] <- "71-78 Years"
-FOTM_BL_Sub_1$Age_Groups[FOTM_BL_Sub_1$Age >= 78] <- "Over 78"
+FOTM_BL$Age_Groups[FOTM_BL$Age >= 26 & FOTM_BL$Age < 63] <- "26-63 Years"
+FOTM_BL$Age_Groups[FOTM_BL$Age >= 63 & FOTM_BL$Age < 71] <- "63-71 Years"
+FOTM_BL$Age_Groups[FOTM_BL$Age >= 71 & FOTM_BL$Age < 78] <- "71-78 Years"
+FOTM_BL$Age_Groups[FOTM_BL$Age >= 78] <- "Over 78"
 
+FOTM_BL$Age_Groups <-revalue(FOTM_BL$Age_Groups, c("26-63 Years"="1", "63-71 Years"="2", "71-78 Years"="3", "Over 78"="4"))
+
+FOTM_BL$GENHEALTH<-revalue(FOTM_BL$GENHEALTH, c("Poor"="1", "Fair"="2", "Good"="3", "Very good"="4", "Excellent"="5"))
+FOTM_BL$Health_Phys_Weeks<-revalue(FOTM_BL$Health_Phys_Weeks, c("None"="1", "One Week"="2", "More Than One Week"="3", "Every Day"="4"))
+FOTM_BL$Health_Ment_Weeks<-revalue(FOTM_BL$Health_Ment_Weeks, c("None"="1", "One Week"="2", "More Than One Week"="3", "Every Day"="4"))
+# FOTM_BL$HUNGRY<-revalue(FOTM_BL$HUNGRY, c("NO"="1", "YES"="2"))
 
 # Univariate Histogram: 
 
-ggplot(FOTM_BL_Sub_1, aes(Age)) + geom_histogram(binwidth = 5) + ggtitle("Age Distribution") + 
+ggplot(FOTM_BL, aes(Age)) + geom_histogram(binwidth = 5) + ggtitle("Age Distribution") + 
   ylab("Number of People")
 
 ################################################################################
@@ -102,26 +116,26 @@ ggplot(FOTM_BL_Sub_1, aes(Age)) + geom_histogram(binwidth = 5) + ggtitle("Age Di
 
 # Bar graph ordered by number of poor health days 0 to 30
 
-ggplot(data=FOTM_BL_Sub_1) + geom_bar(aes(x=factor(Health_Phys_Weeks, level=c("None","One Week","More Than One Week","Every Day")))) + 
+ggplot(data=FOTM_BL) + geom_bar(aes(x=factor(Health_Phys_Weeks, level=c("None","One Week","More Than One Week","Every Day")))) + 
   xlab("# of Days") + ylab("# of People") + ggtitle("Poor Physical Health in Past 30 Days")
 
 # Change Physical Health from Character Variable to Numeric
-FOTM_BL_Sub_1$HEALTH_PHYS <- as.numeric(as.character(FOTM_BL_Sub_1$HEALTH_PHYS))
+FOTM_BL$HEALTH_PHYS <- as.numeric(as.character(FOTM_BL$HEALTH_PHYS))
 
 # Create Categories
-FOTM_BL_Sub_1$Health_Phys_Weeks[FOTM_BL_Sub_1$HEALTH_PHYS==0]<-"None"
-FOTM_BL_Sub_1$Health_Phys_Weeks[FOTM_BL_Sub_1$HEALTH_PHYS>=1 & FOTM_BL_Sub_1$HEALTH_PHYS<8]<-"One Week"
-FOTM_BL_Sub_1$Health_Phys_Weeks[FOTM_BL_Sub_1$HEALTH_PHYS>=8 & FOTM_BL_Sub_1$HEALTH_PHYS<30]<-"More Than One Week"
-FOTM_BL_Sub_1$Health_Phys_Weeks[FOTM_BL_Sub_1$HEALTH_PHYS==30]<-"Every Day"
-FOTM_BL_Sub_1$Health_Phys_Weeks <- as.factor(FOTM_BL_Sub_1$Health_Phys_Weeks)
-freq(FOTM_BL_Sub_1$Health_Phys_Weeks, plot=F)
-freq(FOTM_BL_Sub_1$HEALTH_PHYS, plot=F)
+FOTM_BL$Health_Phys_Weeks[FOTM_BL$HEALTH_PHYS==0]<-"None"
+FOTM_BL$Health_Phys_Weeks[FOTM_BL$HEALTH_PHYS>=1 & FOTM_BL$HEALTH_PHYS<8]<-"One Week"
+FOTM_BL$Health_Phys_Weeks[FOTM_BL$HEALTH_PHYS>=8 & FOTM_BL$HEALTH_PHYS<30]<-"More Than One Week"
+FOTM_BL$Health_Phys_Weeks[FOTM_BL$HEALTH_PHYS==30]<-"Every Day"
+FOTM_BL$Health_Phys_Weeks <- as.factor(FOTM_BL$Health_Phys_Weeks)
+freq(FOTM_BL$Health_Phys_Weeks, plot=F)
+freq(FOTM_BL$HEALTH_PHYS, plot=F)
 
 # Load tidyverse
 library(tidyverse)
 
 # Drop NA From Graphs
-FOTM_BL_Sub_1 %>%
+FOTM_BL %>%
   drop_na(Health_Phys_Weeks) %>%
   ggplot(aes(x=factor(Health_Phys_Weeks, levels=c("None","One Week","More Than One Week","Every Day")))) +
   geom_bar() +
@@ -133,29 +147,29 @@ FOTM_BL_Sub_1 %>%
 
 # Bar graph ordered by number of poor mental health days 0 to 30
 
-ggplot(data=FOTM_BL_Sub_1) + geom_bar(aes(x=factor(HEALTH_MENTAL, level=c
+ggplot(data=FOTM_BL) + geom_bar(aes(x=factor(HEALTH_MENTAL, level=c
                                                    ("0","1","2","3","4","5","6","7","8","9","10",
                                                      "11","12","13","14","15","16","17","18","19","20",
                                                      "21","22","23","24","25","26","27","28","29","30")))) + 
   xlab("# of Days") + ylab("# of People") + ggtitle("# of Days of Poor Mental Health in Past 30 Days")
 
 # Change Mental Health from Character Variable to Numeric
-FOTM_BL_Sub_1$HEALTH_MENTAL <- as.numeric(as.character(FOTM_BL_Sub_1$HEALTH_MENTAL))
+FOTM_BL$HEALTH_MENTAL <- as.numeric(as.character(FOTM_BL$HEALTH_MENTAL))
 
 # Create Categories
-FOTM_BL_Sub_1$Health_Ment_Weeks[FOTM_BL_Sub_1$HEALTH_MENTAL==0]<-"None"
-FOTM_BL_Sub_1$Health_Ment_Weeks[FOTM_BL_Sub_1$HEALTH_MENTAL>=1 & FOTM_BL_Sub_1$HEALTH_MENTAL<8]<-"One Week"
-FOTM_BL_Sub_1$Health_Ment_Weeks[FOTM_BL_Sub_1$HEALTH_MENTAL>=8 & FOTM_BL_Sub_1$HEALTH_MENTAL<30]<-"More Than One Week"
-FOTM_BL_Sub_1$Health_Ment_Weeks[FOTM_BL_Sub_1$HEALTH_MENTAL==30]<-"Every Day"
-FOTM_BL_Sub_1$Health_Ment_Weeks <- as.factor(FOTM_BL_Sub_1$Health_Ment_Weeks)
-freq(FOTM_BL_Sub_1$Health_Ment_Weeks, plot=F)
-freq(FOTM_BL_Sub_1$HEALTH_MENTAL, plot=F)
+FOTM_BL$Health_Ment_Weeks[FOTM_BL$HEALTH_MENTAL==0]<-"None"
+FOTM_BL$Health_Ment_Weeks[FOTM_BL$HEALTH_MENTAL>=1 & FOTM_BL$HEALTH_MENTAL<8]<-"One Week"
+FOTM_BL$Health_Ment_Weeks[FOTM_BL$HEALTH_MENTAL>=8 & FOTM_BL$HEALTH_MENTAL<30]<-"More Than One Week"
+FOTM_BL$Health_Ment_Weeks[FOTM_BL$HEALTH_MENTAL==30]<-"Every Day"
+FOTM_BL$Health_Ment_Weeks <- as.factor(FOTM_BL$Health_Ment_Weeks)
+freq(FOTM_BL$Health_Ment_Weeks, plot=F)
+freq(FOTM_BL$HEALTH_MENTAL, plot=F)
 
 # Load tidyverse
 library(tidyverse)
 
 # Drop NA From Graphs
-FOTM_BL_Sub_1 %>%
+FOTM_BL %>%
   drop_na(Health_Ment_Weeks) %>%
   ggplot(aes(x=factor(Health_Ment_Weeks, levels=c("None","One Week","More Than One Week","Every Day")))) +
   geom_bar() + xlab("# of Days") + ylab("# of People") + ggtitle("# of Days of Poor Mental Health in Past 30 Days")
@@ -164,59 +178,48 @@ FOTM_BL_Sub_1 %>%
 
 # SNAP BENEFITS #
 
-ggplot(data=FOTM_BL_Sub_1)+geom_bar(aes(x=factor(SNAP)))+ggtitle("Snap Benefits") + xlab("") + ylab("# of People") 
+ggplot(data=FOTM_BL)+geom_bar(aes(x=factor(SNAP)))+ggtitle("Snap Benefits") + xlab("") + ylab("# of People") 
 
 ################################################################################
 
 # INSURANCE #
 
-ggplot(data=FOTM_BL_Sub_1)+geom_bar(aes(x=factor(INSURANCEYN)))+ggtitle("Insurance") + xlab("") + ylab("# of People") 
+ggplot(data=FOTM_BL)+geom_bar(aes(x=factor(INSURANCEYN)))+ggtitle("Insurance") + xlab("") + ylab("# of People") 
 
 ################################################################################
 
 # HISPANIC #
 
-FOTM_BL_Sub_1$HISPANIC[FOTM_BL_Sub_1$HISPANIC == "NO"] <- "No"
-FOTM_BL_Sub_1$HISPANIC[FOTM_BL_Sub_1$HISPANIC == "YES"] <- "Yes"
-FOTM_BL_Sub_1$HISPANIC[FOTM_BL_Sub_1$HISPANIC == "DON'T KNOW"] <- "Don't Know"
+FOTM_BL$HISPANIC[FOTM_BL$HISPANIC == "NO"] <- "No"
+FOTM_BL$HISPANIC[FOTM_BL$HISPANIC == "YES"] <- "Yes"
+FOTM_BL$HISPANIC[FOTM_BL$HISPANIC == "DON'T KNOW"] <- "Don't Know"
 
-ggplot(data=FOTM_BL_Sub_1)+geom_bar(aes(x=factor(HISPANIC)))+ggtitle("Hispanic") + xlab("") + ylab("# of People") 
+ggplot(data=FOTM_BL)+geom_bar(aes(x=factor(HISPANIC)))+ggtitle("Hispanic") + xlab("") + ylab("# of People") 
 
 ################################################################################
 
 # EMPLOYMENT #
 
-ggplot(data=FOTM_BL_Sub_1)+geom_bar(aes(x=factor(EMPLOYED)))+ggtitle("Employment") + xlab("") + ylab("# of People") 
+ggplot(data=FOTM_BL)+geom_bar(aes(x=factor(EMPLOYED)))+ggtitle("Employment") + xlab("") + ylab("# of People") 
 
 ################################################################################
 
 # RETIREMENT/EMPLOYMENT #
 
-ggplot(data=FOTM_BL_Sub_1)+geom_bar(aes(x=factor(RETIRED)))+ggtitle("Employment Status") + xlab("") + ylab("# of People") 
+ggplot(data=FOTM_BL)+geom_bar(aes(x=factor(RETIRED)))+ggtitle("Employment Status") + xlab("") + ylab("# of People") 
 
-# This needs to be edited for the sub_1 data set in order to allow for changing NA title #
+FOTM_BL$Health_Ment_Weeks <- as.factor(FOTM_BL$Health_Ment_Weeks)
 
-FOTM_BL_Sub$EMPLOYED[FOTM_BL_Sub$RETIRED == "YES" & FOTM_BL_Sub$EMPLOYED == "NO"] <- NA
-FOTM_BL_Sub$RETIRED[FOTM_BL_Sub$EMPLOYED == "YES" & FOTM_BL_Sub$RETIRED == "NO"] <- NA
+FOTM_BL$RETIRED <- as.factor(FOTM_BL$RETIRED)
 
-# Changing labels #
-
-FOTM_BL_Sub_1$RETIRED[FOTM_BL_Sub_1$RETIRED == "NO"] <- "Unemployed"
-FOTM_BL_Sub_1$RETIRED[FOTM_BL_Sub_1$RETIRED == "YES"] <- "Retired"
-FOTM_BL_Sub_1$RETIRED[FOTM_BL_Sub_1$RETIRED == "DON'T KNOW"] <- "Don't Know"
-
-FOTM_BL_Sub_1$Health_Ment_Weeks <- as.factor(FOTM_BL_Sub_1$Health_Ment_Weeks)
-
-FOTM_BL_Sub_1$RETIRED <- as.factor(FOTM_BL_Sub_1$RETIRED)
-
-freq(FOTM_BL_Sub_1$Health_Ment_Weeks, plot=F)
-freq(FOTM_BL_Sub_1$HEALTH_MENTAL, plot=F)
+freq(FOTM_BL$Health_Ment_Weeks, plot=F)
+freq(FOTM_BL$HEALTH_MENTAL, plot=F)
 
 # Load tidyverse
 library(tidyverse)
 
 # Drop NA From Graphs
-FOTM_BL_Sub_1 %>%
+FOTM_BL %>%
   drop_na(Health_Ment_Weeks) %>%
   ggplot(aes(x=factor(Health_Ment_Weeks, levels=c("None","One Week","More Than One Week","Every Day")))) +
   geom_bar() + xlab("# of Days") + ylab("# of People") + ggtitle("# of Days of Poor Mental Health in Past 30 Days")
@@ -226,12 +229,12 @@ FOTM_BL_Sub_1 %>%
 
 # DISABLED #
 
-ggplot(data=FOTM_BL_Sub_1)+geom_bar(aes(x=factor(DISABLED)))+ggtitle("Disabled") + xlab("") + ylab("# of People")
+ggplot(data=FOTM_BL)+geom_bar(aes(x=factor(DISABLED)))+ggtitle("Disabled") + xlab("") + ylab("# of People")
 
-FOTM_BL_Sub_1$DISABLED[FOTM_BL_Sub_1$DISABLED == "DON'T KNOW"] <- NA
-FOTM_BL_Sub_1$DISABLED[FOTM_BL_Sub_1$DISABLED == "REFUSED"] <- NA
+FOTM_BL$DISABLED[FOTM_BL$DISABLED == "DON'T KNOW"] <- NA
+FOTM_BL$DISABLED[FOTM_BL$DISABLED == "REFUSED"] <- NA
 
-FOTM_BL_Sub_1 %>%
+FOTM_BL %>%
   drop_na(DISABLED) %>%
   ggplot(aes(x=factor(DISABLED, levels=c("NO","YES")))) +
   geom_bar() + xlab("") + ylab("# of People") + ggtitle("Ability Status")
@@ -240,10 +243,10 @@ FOTM_BL_Sub_1 %>%
 
 # GENERAL HEALTH #
 
-FOTM_BL_Sub_1$GENHEALTH[FOTM_BL_Sub_1$GENHEALTH == "Fair, or"] <- "Fair"
-FOTM_BL_Sub_1$GENHEALTH[FOTM_BL_Sub_1$GENHEALTH == "DON'T KNOW"] <- NA
+FOTM_BL$GENHEALTH[FOTM_BL$GENHEALTH == "Fair, or"] <- "Fair"
+FOTM_BL$GENHEALTH[FOTM_BL$GENHEALTH == "DON'T KNOW"] <- NA
 
-ggplot(data=FOTM_BL_Sub_1)+geom_bar(aes(x=factor(GENHEALTH,level=c(NA, "Poor","Fair","Good","Very Good","Excellent")))) +
+ggplot(data=FOTM_BL)+geom_bar(aes(x=factor(GENHEALTH,level=c(NA, "Poor","Fair","Good","Very Good","Excellent")))) +
   ggtitle("General Health Rating") + xlab("") + ylab("# of People") 
 
 ################################################################################
@@ -281,23 +284,23 @@ ggplot(data=FOTM_BL_Sub_1)+geom_bar(aes(x=factor(GENHEALTH,level=c(NA, "Poor","F
 ################################################################################
 
 # visualization - Assumes response variable is coded as 0/1
-FOTM_BL_Sub_1$SNAP[FOTM_BL_Sub_1$SNAP == "NO"] <- 0
-FOTM_BL_Sub_1$SNAP[FOTM_BL_Sub_1$SNAP == "YES"] <- 1
+FOTM_BL$SNAP[FOTM_BL$SNAP == "NO"] <- 0
+FOTM_BL$SNAP[FOTM_BL$SNAP == "YES"] <- 1
 
 # AGE v. SNAP
-ggplot(data=FOTM_BL_Sub_1) + stat_summary(aes(x=Age_Groups, y=SNAP), fun="mean", geom="bar") + ylab("Proportion of Subjects with SNAP Benefits") + xlab("Age Groups") + ggtitle("SNAP Benefits by Age Groups")
+ggplot(data=FOTM_BL) + stat_summary(aes(x=Age_Groups, y=SNAP), fun="mean", geom="bar") + ylab("Proportion of Subjects with SNAP Benefits") + xlab("Age Groups") + ggtitle("SNAP Benefits by Age Groups")
 
 # General Health v. SNAP
-ggplot(data=FOTM_BL_Sub_1) + stat_summary(aes(x=GENHEALTH, y=SNAP), fun="mean", geom="bar") + ylab("Proportion of Subjects with SNAP Benefits") + xlab("General Health Rating") + ggtitle("SNAP Benefits by General Health Ratings")
+ggplot(data=FOTM_BL) + stat_summary(aes(x=GENHEALTH, y=SNAP), fun="mean", geom="bar") + ylab("Proportion of Subjects with SNAP Benefits") + xlab("General Health Rating") + ggtitle("SNAP Benefits by General Health Ratings")
 
 # Mental Health v. SNAP
-ggplot(data=FOTM_BL_Sub_1) + stat_summary(aes(x=Health_Ment_Weeks, y=SNAP), fun="mean", geom="bar") + ylab("Proportion of Subjects with SNAP Benefits") + xlab("Mental Health") + ggtitle("SNAP Benefits by Mental Health")
+ggplot(data=FOTM_BL) + stat_summary(aes(x=Health_Ment_Weeks, y=SNAP), fun="mean", geom="bar") + ylab("Proportion of Subjects with SNAP Benefits") + xlab("Mental Health") + ggtitle("SNAP Benefits by Mental Health")
 
 # Physical Health v. SNAP
-ggplot(data=FOTM_BL_Sub_1) + stat_summary(aes(x=Health_Phys_Weeks, y=SNAP), fun="mean", geom="bar") + ylab("Proportion of Subjects with SNAP Benefits") + xlab("Physical Health") + ggtitle("SNAP Benefits by Physical Health")
+ggplot(data=FOTM_BL) + stat_summary(aes(x=Health_Phys_Weeks, y=SNAP), fun="mean", geom="bar") + ylab("Proportion of Subjects with SNAP Benefits") + xlab("Physical Health") + ggtitle("SNAP Benefits by Physical Health")
 
 # Age v. Mental Health
-ggplot(data=FOTM_BL_Sub_1) + stat_summary(aes(x=Age_Groups, y=Health_Ment_Weeks), fun="mean", geom="bar") + ylab("Proportion of Subjects with SNAP Benefits") + xlab("Mental Health") + ggtitle("SNAP Benefits by Mental Health")
+ggplot(data=FOTM_BL) + stat_summary(aes(x=Age_Groups, y=Health_Ment_Weeks), fun="mean", geom="bar") + ylab("Proportion of Subjects with SNAP Benefits") + xlab("Mental Health") + ggtitle("SNAP Benefits by Mental Health")
 
 # Categorical-Quantitative (Plot)
 
