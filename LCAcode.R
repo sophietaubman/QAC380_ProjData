@@ -27,6 +27,12 @@ View(MASTER_CLEAN_DATA_FOTM)
 # Employment Status ("EMPLOYMENT") Employed/Retired/Unemployed
 # General Health ("GENHEALTH") "Poor" = 1, "Fair, or" = 2, "Good" = 3, "Very good" = 4, "Excellent" = 5
 # Hunger ("HUNGRY") YES/NO
+# Eat Less than Desired ("EAT_LESS")
+# Medicare Status ("MEDICARE") YES/NO
+# Medicaid Status ("MEDICAID") YES/NO
+# Enough Snap Money ("SNAP_LAST")
+# Self Reported Physical Health ("Health_Phys_Weeks")
+# Self Reported Mental Health ("Health_Ment_Weeks")
 
 ################################################################################
 # Make New Subset Using Variables of Interest
@@ -112,12 +118,20 @@ LCA_subset$RACE[LCA_subset$RACE == "n/a"] <- NA
 LCA_subset$RACE[LCA_subset$RACE == "puerto rican"] <- "Puerto Rican"
 LCA_subset$RACE[LCA_subset$RACE == "RACE_REF"] <- NA
 LCA_subset$RACE[LCA_subset$RACE == "RACE_ASIAN"] <- "Asian"
-LCA_subset$RACE[LCA_subset$RACE == "RACE_AMERICAN_INDIAN,RACE_BLACK"|LCA_subset$RACE == "RACE_AMERICAN_INDIAN,RACE_BLACK,RACE_WHITE"|LCA_subset$RACE == 
-                  "RACE_AMERICAN_INDIAN,RACE_OTHER"|LCA_subset$RACE == "RACE_AMERICAN_INDIAN,RACE_WHITE"] <- "American Indian"
+LCA_subset$RACE[LCA_subset$RACE == "RACE_AMERICAN_INDIAN,RACE_BLACK"|LCA_subset$RACE == 
+                  "RACE_AMERICAN_INDIAN,RACE_BLACK,RACE_WHITE"|LCA_subset$RACE == "RACE_AMERICAN_INDIAN,RACE_OTHER"|
+                  LCA_subset$RACE == "RACE_AMERICAN_INDIAN,RACE_WHITE"] <- "American Indian"
 LCA_subset$RACE[LCA_subset$RACE == "RACE_BLACK,RACE_OTHER"|LCA_subset$RACE == "RACE_BLACK,RACE_WHITE"] <- "Black"
 LCA_subset$RACE[LCA_subset$RACE == "RACE_NATHAWOROTH"] <- "Nathaworoth"
-LCA_subset$RACE[LCA_subset$RACE == "RACE_WHITE, RACE_OTHER"|LCA_subset$RACE == "RACE_WHITE,RACE_DK"|LCA_subset$RACE == "RACE_WHITE,RACE_OTHER"] <- "White"
+LCA_subset$RACE[LCA_subset$RACE == "RACE_WHITE, RACE_OTHER"|LCA_subset$RACE == "RACE_WHITE,RACE_DK"|
+                  LCA_subset$RACE == "RACE_WHITE,RACE_OTHER"] <- "White"
+
+# Removing RACE_5_TEXT Column #
+
 LCA_subset <- LCA_subset[,-12]
+
+# Creating Other Category with Single Response Categories #
+
 LCA_subset$RACE[LCA_subset$RACE == "American"|LCA_subset$RACE == "Asian"|LCA_subset$RACE == "Boricua"|
                   LCA_subset$RACE == "Cape Verdan"|LCA_subset$RACE == "Cape Verdean, Portuguese, Italian"|
                   LCA_subset$RACE == "Columbian"|LCA_subset$RACE == "French Indian, Italian"|
@@ -162,22 +176,24 @@ LCA_subset$INSURANCEYN[LCA_subset$INSURANCEYN == "DON'T KNOW"] <- NA
 
 # Health_Phys_Weeks #
 
+LCA_subset$HEALTH_PHYS<-as.numeric(LCA_subset$HEALTH_PHYS)
 LCA_subset$Health_Phys_Weeks[LCA_subset$HEALTH_PHYS==0]<-"None"
 LCA_subset$Health_Phys_Weeks[LCA_subset$HEALTH_PHYS>=1 & LCA_subset$HEALTH_PHYS<8]<-"One Week"
 LCA_subset$Health_Phys_Weeks[LCA_subset$HEALTH_PHYS>=8 & LCA_subset$HEALTH_PHYS<30]<-"More Than One Week"
 LCA_subset$Health_Phys_Weeks[LCA_subset$HEALTH_PHYS==30]<-"Every Day"
 
-LCA_subset <- LCA_subset[,-17]
+LCA_subset <- LCA_subset[,-15]
 
 
 # Health_Ment_Weeks #
 
+LCA_subset$HEALTH_MENTAL<-as.numeric(LCA_subset$HEALTH_MENTAL)
 LCA_subset$Health_Ment_Weeks[LCA_subset$HEALTH_MENTAL==0]<-"None"
 LCA_subset$Health_Ment_Weeks[LCA_subset$HEALTH_MENTAL>=1 & LCA_subset$HEALTH_MENTAL<8]<-"One Week"
 LCA_subset$Health_Ment_Weeks[LCA_subset$HEALTH_MENTAL>=8 & LCA_subset$HEALTH_MENTAL<30]<-"More Than One Week"
 LCA_subset$Health_Ment_Weeks[LCA_subset$HEALTH_MENTAL==30]<-"Every Day"
 
-LCA_subset <- LCA_subset[,-17]
+LCA_subset <- LCA_subset[,-15]
 
 
 ################################################################################
@@ -188,17 +204,26 @@ LCA_subset$Age<-revalue(LCA_subset$Age, c("26_63"="1", "63_71"="2", "71_78"="3",
 LCA_subset$INSURANCEYN<-revalue(LCA_subset$INSURANCEYN, c("NO"="1", "YES"="2"))
 LCA_subset$DISABLED<-revalue(LCA_subset$DISABLED, c("NO"="1", "YES"="2"))
 LCA_subset$SNAP<-revalue(LCA_subset$SNAP, c("NO"="1", "YES"="2"))
-LCA_subset$GENHEALTH<-revalue(LCA_subset$GENHEALTH, c("Poor"="1", "Fair"="2", "Good"="3", "Very good"="4", "Excellent"="5"))
+LCA_subset$GENHEALTH<-revalue(LCA_subset$GENHEALTH, c("Poor"="1", "Fair"="2", "Good"="3", 
+                                                      "Very good"="4", "Excellent"="5"))
 LCA_subset$GENDER<-revalue(LCA_subset$GENDER, c("Man"="1", "Woman"="2", "Genderqueer"="3"))
 LCA_subset$HISPANIC<-revalue(LCA_subset$HISPANIC, c("NO"="1", "YES"="2"))
 LCA_subset$RACE<-revalue(LCA_subset$RACE, c("American Indian"="1", "Black"="2",
-                                            "Cape Verdan"="3", "Dominican"="4", "Hispanic"="5",
-                                            "Latina"="6", "Puerto Rican"="7", "Spanish"="8", "White"="9",
-                                            "Other"="10"))
+                                            "White"="3", "Dominican"="4", "Hispanic"="5",
+                                            "Latina"="6", "Puerto Rican"="7", "Spanish"="8",
+                                            "Other"="9"))
+LCA_subset$EAT_LESS<-revalue(LCA_subset$EAT_LESS, c("NO"="1", "YES"="2"))
+LCA_subset$MEDICAID<-revalue(LCA_subset$MEDICAID, c("NO"="1", "YES"="2"))
+LCA_subset$MEDICARE<-revalue(LCA_subset$MEDICARE, c("NO"="1", "YES"="2"))
+LCA_subset$SNAP_LAST<-revalue(LCA_subset$SNAP_LAST, c("NO"="1", "YES"="2"))
 LCA_subset$EMPLOYMENT<-revalue(LCA_subset$EMPLOYMENT, c("Employed"="1", "Unemployed"="2", "Retired"="3"))
 LCA_subset$HUNGRY<-revalue(LCA_subset$HUNGRY, c("NO"="1", "YES"="2"))
-LCA_subset$Health_Phys_Weeks<-revalue(LCA_subset$Health_Phys_Weeks, c("None"="1", "One Week"="2", "More Than One Week"="3", "Every Day"="4"))
-LCA_subset$Health_Ment_Weeks<-revalue(LCA_subset$Health_Ment_Weeks, c("None"="1", "One Week"="2", "More Than One Week"="3", "Every Day"="4"))
+LCA_subset$Health_Phys_Weeks<-revalue(LCA_subset$Health_Phys_Weeks, 
+                                      c("None"="1", "One Week"="2", "More Than One Week"="3", 
+                                        "Every Day"="4"))
+LCA_subset$Health_Ment_Weeks<-revalue(LCA_subset$Health_Ment_Weeks, 
+                                      c("None"="1", "One Week"="2", "More Than One Week"="3", 
+                                        "Every Day"="4"))
 
 
 ################################################################################
@@ -206,16 +231,21 @@ LCA_subset$Health_Ment_Weeks<-revalue(LCA_subset$Health_Ment_Weeks, c("None"="1"
 ################################################################################
 
 LCA_subset$Age<-as.factor(LCA_subset$Age)
-LCA_subset$GENDER<-as.factor(LCA_subset$GENDER)
 LCA_subset$INSURANCEYN<-as.factor(LCA_subset$INSURANCEYN)
 LCA_subset$DISABLED<-as.factor(LCA_subset$DISABLED)
 LCA_subset$SNAP<-as.factor(LCA_subset$SNAP)
-LCA_subset$GENHEALTH<-as.factor(LCA_subset$GENHEALTH)
 LCA_subset$GENDER<-as.factor(LCA_subset$GENDER)
 LCA_subset$HISPANIC<-as.factor(LCA_subset$HISPANIC)
 LCA_subset$RACE<-as.factor(LCA_subset$RACE)
+LCA_subset$EAT_LESS<-as.factor(LCA_subset$EAT_LESS)
+LCA_subset$MEDICAID<-as.factor(LCA_subset$MEDICAID)
+LCA_subset$MEDICARE<-as.factor(LCA_subset$MEDICARE)
+LCA_subset$SNAP_LAST<-as.factor(LCA_subset$SNAP_LAST)
 LCA_subset$EMPLOYMENT<-as.factor(LCA_subset$EMPLOYMENT)
 LCA_subset$HUNGRY<-as.factor(LCA_subset$HUNGRY)
+LCA_subset$GENHEALTH<-as.factor(LCA_subset$GENHEALTH)
+LCA_subset$Health_Phys_Weeks<-as.factor(LCA_subset$Health_Phys_Weeks)
+LCA_subset$Health_Ment_Weeks<-as.factor(LCA_subset$Health_Ment_Weeks)
 
 ################################################################################
 # Define the LCA formula. Variables in parentheses are the latent class classification variables. 
@@ -223,10 +253,13 @@ LCA_subset$HUNGRY<-as.factor(LCA_subset$HUNGRY)
 # Run the LCA specifying a range of classes
 ################################################################################
 
-f <- cbind(Age, INSURANCEYN, DISABLED, SNAP, GENDER, HISPANIC, RACE, EMPLOYMENT)~GENHEALTH+HUNGRY
+f <- cbind(Age, INSURANCEYN, DISABLED, SNAP, GENDER, 
+           HISPANIC, RACE, EAT_LESS, MEDICAID, MEDICARE, 
+           SNAP_LAST, EMPLOYMENT)~GENHEALTH+HUNGRY+Health_Phys_Weeks+Health_Ment_Weeks
+
 
 ################################################################################
-# Latent Class Analysis Specifying 1-3 Classes
+# Latent Class Analysis With 1-4 Classes
 ################################################################################
 
 lCA1 <- poLCA(f,LCA_subset, nclass=1,nrep=15) 
@@ -237,6 +270,7 @@ lCA4 <- poLCA(f,LCA_subset, nclass=4,nrep=15, graphs = T)
 
 ################################################################################
 # THIS (ENTROPY) WILL HAPPEN LATER #
+# haven't done anything past this point yet, waiting on guidance -miles
 ################################################################################
 # Calculate entropy (3-class mode)l- values closer to 1.0 indicate greater separation of the classes.
 entropy<-function (p) sum(-p*log(p))
