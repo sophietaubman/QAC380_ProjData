@@ -1,17 +1,5 @@
 
 ################################################################################
-# Load libraries needed 
-################################################################################
-
-library(ggplot2)
-library(descr)
-library(dplyr)
-library(readxl)
-library(tidyverse)
-library(plyr)
-library(poLCA)
-
-################################################################################
 # DATA MANAGEMENT 
 ################################################################################
 
@@ -36,6 +24,19 @@ library(poLCA)
 # Did you ever eat less during the past 12 months to save money? (EAT_LESS) Y/N
 # Did snap provide enough benefits for your family to last the entire month? (SNAP_ENOUGH) Y/N
 
+
+################################################################################
+# Load libraries needed 
+################################################################################
+
+library(ggplot2)
+library(descr)
+library(dplyr)
+library(readxl)
+library(tidyverse)
+library(plyr)
+library(poLCA)
+
 ################################################################################
 # Make New Subset of Data Using Variables of Interest BASELINE
 ################################################################################
@@ -47,12 +48,14 @@ FOTM_BL_Sub <- FOTM_BL[,c("Loyalty card number","Age", "GENDER",
                                          "HEALTH_MENTAL_0_TEXT","HUNGRY","EAT_LESS","SNAP_ENOUGH", "RACE_5_TEXT")]
 View(FOTM_BL_Sub)
 
+FOTM_BL_Sub <- FOTM_BL_Sub[-1,]
+View(FOTM_BL_Sub)
+
 ################################################################################
 # Make New Subset of Data Using Variables of Interest 6 MONTH
 ################################################################################
 
-FOTM_6mo_Sub <- FOTM_6mo[,c("Loyalty card number","Age", "GENDER",
-                                         "RACE","HISPANIC","INSURANCEYN","MEDICARE",
+FOTM_6mo_Sub <- FOTM_6mo[,c("Loyalty card member","YOB","INSURANCE Y/N","MEDICARE",
                                          "MEDICAID","EMPLOYED","RETIRED","DISABLED",
                                          "SNAP","GENHEALTH","HEALTH_PHYS_0_TEXT",
                                          "HEALTH_MENTAL_0_TEXT","HUNGRY","EAT_LESS","SNAP_ENOUGH")]
@@ -62,12 +65,16 @@ View(FOTM_6mo_Sub)
 # Make New Subset of Data Using Variables of Interest 12 MONTH
 ################################################################################
 
-FOTM_12mo_Sub <- FOTM_12mo[,c("Loyalty card number","Age", "GENDER",
-                                         "RACE","HISPANIC","INSURANCEYN","MEDICARE",
-                                         "MEDICAID","EMPLOYED","RETIRED","DISABLED",
-                                         "SNAP","GENHEALTH","HEALTH_PHYS_0_TEXT",
-                                         "HEALTH_MENTAL_0_TEXT","HUNGRY","EAT_LESS","SNAP_ENOUGH")]
+FOTM_12mo_Sub <- FOTM_12mo[,c("Loyalty card member","YOB","INSURANCEYN","MEDICARE",
+                              "MEDICAID","EMPLOYED","RETIRED","DISABLED",
+                              "SNAP","GENHEALTH","HEALTH_PHYS_0_TEXT",
+                              "HEALTH_MENTAL_0_TEXT","HUNGRY","EAT_LESS","SNAP_ENOUGH")]
 View(FOTM_12mo_Sub)
+
+
+FOTM_12mo_Sub <- FOTM_12mo_Sub[-1,]
+View(FOTM_12mo_Sub)
+
 
 ################################################################################
 # Renaming Variables
@@ -76,8 +83,10 @@ View(FOTM_12mo_Sub)
 names(FOTM_BL_Sub)[names(FOTM_BL_Sub)== "HEALTH_PHYS_0_TEXT"] <- "HEALTH_PHYS"
 names(FOTM_BL_Sub)[names(FOTM_BL_Sub)== "HEALTH_MENTAL_0_TEXT"] <- "HEALTH_MENTAL"
 
+
 names(FOTM_6mo_Sub)[names(FOTM_6mo_Sub)== "HEALTH_PHYS_0_TEXT"] <- "HEALTH_PHYS"
 names(FOTM_6mo_Sub)[names(FOTM_6mo_Sub)== "HEALTH_MENTAL_0_TEXT"] <- "HEALTH_MENTAL"
+
 
 names(FOTM_12mo_Sub)[names(FOTM_12mo_Sub)== "HEALTH_PHYS_0_TEXT"] <- "HEALTH_PHYS"
 names(FOTM_12mo_Sub)[names(FOTM_12mo_Sub)== "HEALTH_MENTAL_0_TEXT"] <- "HEALTH_MENTAL"
@@ -91,10 +100,12 @@ FOTM_BL_Sub$Employment[FOTM_BL_Sub$EMPLOYED == "YES" & FOTM_BL_Sub$RETIRED == "N
 FOTM_BL_Sub$Employment[FOTM_BL_Sub$RETIRED == "NO" & FOTM_BL_Sub$EMPLOYED == "NO"] <- "Unemployed"
 FOTM_BL_Sub$Employment[FOTM_BL_Sub$RETIRED == "DON'T KNOW" & FOTM_BL_Sub$EMPLOYED == "NO"] <- NA
 
+
 FOTM_6mo_Sub$Employment[FOTM_6mo_Sub$RETIRED == "YES" & FOTM_6mo_Sub$EMPLOYED == "NO"] <- "Retired"
 FOTM_6mo_Sub$Employment[FOTM_6mo_Sub$EMPLOYED == "YES" & FOTM_6mo_Sub$RETIRED == "NO"] <- "Employed"
 FOTM_6mo_Sub$Employment[FOTM_6mo_Sub$RETIRED == "NO" & FOTM_6mo_Sub$EMPLOYED == "NO"] <- "Unemployed"
 FOTM_6mo_Sub$Employment[FOTM_6mo_Sub$RETIRED == "DON'T KNOW" & FOTM_6mo_Sub$EMPLOYED == "NO"] <- NA
+
 
 FOTM_12mo_Sub$Employment[FOTM_12mo_Sub$RETIRED == "YES" & FOTM_12mo_Sub$EMPLOYED == "NO"] <- "Retired"
 FOTM_12mo_Sub$Employment[FOTM_12mo_Sub$EMPLOYED == "YES" & FOTM_12mo_Sub$RETIRED == "NO"] <- "Employed"
@@ -110,6 +121,7 @@ FOTM_BL_Sub$Age_Groups[FOTM_BL_Sub$Age >= 63 & FOTM_BL_Sub$Age < 71] <- "63-71 Y
 FOTM_BL_Sub$Age_Groups[FOTM_BL_Sub$Age >= 71 & FOTM_BL_Sub$Age < 78] <- "71-78 Years"
 FOTM_BL_Sub$Age_Groups[FOTM_BL_Sub$Age >= 78] <- "Over 78"
 
+# YOB Instead of Age... Recode to account for that aka: this code doesn't apply #
 
 FOTM_6mo_Sub$Age_Groups[FOTM_6mo_Sub$Age >= 26 & FOTM_6mo_Sub$Age < 63] <- "26-63 Years"
 FOTM_6mo_Sub$Age_Groups[FOTM_6mo_Sub$Age >= 63 & FOTM_6mo_Sub$Age < 71] <- "63-71 Years"
@@ -122,16 +134,7 @@ FOTM_12mo_Sub$Age_Groups[FOTM_12mo_Sub$Age >= 63 & FOTM_12mo_Sub$Age < 71] <- "6
 FOTM_12mo_Sub$Age_Groups[FOTM_12mo_Sub$Age >= 71 & FOTM_12mo_Sub$Age < 78] <- "71-78 Years"
 FOTM_12mo_Sub$Age_Groups[FOTM_12mo_Sub$Age >= 78] <- "Over 78"
 
-
-FOTM_BL_Sub$Age_Groups <-revalue(FOTM_BL_Sub$Age_Groups, c("26-63 Years"="1", "63-71 Years"="2", "71-78 Years"="3", "Over 78"="4"))
-
-FOTM_6mo_Sub$Age_Groups <-revalue(FOTM_6mo_Sub$Age_Groups, c("26-63 Years"="1", "63-71 Years"="2", "71-78 Years"="3", "Over 78"="4"))
-
-FOTM_12mo_Sub$Age_Groups <-revalue(FOTM_12mo_Sub$Age_Groups, c("26-63 Years"="1", "63-71 Years"="2", "71-78 Years"="3", "Over 78"="4"))
-
-
 ################################################################################
-
 
 FOTM_BL_Sub$GENHEALTH[FOTM_BL_Sub$GENHEALTH == "Fair, or"] <- "Fair"
 FOTM_BL_Sub$GENHEALTH[FOTM_BL_Sub$GENHEALTH == "DON'T KNOW"] <- NA
@@ -144,23 +147,9 @@ FOTM_6mo_Sub$GENHEALTH[FOTM_6mo_Sub$GENHEALTH == "DON'T KNOW"] <- NA
 FOTM_12mo_Sub$GENHEALTH[FOTM_12mo_Sub$GENHEALTH == "Fair, or"] <- "Fair"
 FOTM_12mo_Sub$GENHEALTH[FOTM_12mo_Sub$GENHEALTH == "DON'T KNOW"] <- NA
 
-
-FOTM_BL_Sub_Sub$GENHEALTH<-revalue(FOTM_BL_Sub$GENHEALTH, c("Poor"="1", "Fair"="2", "Good"="3", "Very good"="4", "Excellent"="5"))
-
-FOTM_6mo_Sub$GENHEALTH<-revalue(FOTM_6mo_Sub$GENHEALTH, c("Poor"="1", "Fair"="2", "Good"="3", "Very good"="4", "Excellent"="5"))
-
-FOTM_12mo_Sub$GENHEALTH<-revalue(FOTM_12mo_Sub$GENHEALTH, c("Poor"="1", "Fair"="2", "Good"="3", "Very good"="4", "Excellent"="5"))
-
-
 ################################################################################
 
 LCA_subset$HUNGRY[LCA_subset$HUNGRY == "DON'T KNOW"|LCA_subset$HUNGRY == "REFUSED"] <- NA
-
-FOTM_BL_Sub$HUNGRY<-revalue(FOTM_BL_Sub$HUNGRY, c("NO"="1", "YES"="2"))
-
-FOTM_6mo_Sub$HUNGRY<-revalue(FOTM_6mo_Sub$HUNGRY, c("NO"="1", "YES"="2"))
-
-FOTM_12mo_Sub$HUNGRY<-revalue(FOTM_12mo_Sub$HUNGRY, c("NO"="1", "YES"="2"))
 
 ################################################################################
 
@@ -169,19 +158,17 @@ FOTM_BL_Sub$Health_Phys_Weeks[FOTM_BL_Sub$HEALTH_PHYS>=1 & FOTM_BL_Sub$HEALTH_PH
 FOTM_BL_Sub$Health_Phys_Weeks[FOTM_BL_Sub$HEALTH_PHYS>=8 & FOTM_BL_Sub$HEALTH_PHYS<30]<-"More Than One Week"
 FOTM_BL_Sub$Health_Phys_Weeks[FOTM_BL_Sub$HEALTH_PHYS==30]<-"Every Day"
 
+
 FOTM_6mo_Sub$Health_Phys_Weeks[FOTM_6mo_Sub$HEALTH_PHYS==0]<-"None"
 FOTM_6mo_Sub$Health_Phys_Weeks[FOTM_6mo_Sub$HEALTH_PHYS>=1 & FOTM_6mo_Sub$HEALTH_PHYS<8]<-"One Week"
 FOTM_6mo_Sub$Health_Phys_Weeks[FOTM_6mo_Sub$HEALTH_PHYS>=8 & FOTM_6mo_Sub$HEALTH_PHYS<30]<-"More Than One Week"
 FOTM_6mo_Sub$Health_Phys_Weeks[FOTM_6mo_Sub$HEALTH_PHYS==30]<-"Every Day"
 
+
 FOTM_12mo_Sub$Health_Phys_Weeks[FOTM_12mo_Sub$HEALTH_PHYS==0]<-"None"
 FOTM_12mo_Sub$Health_Phys_Weeks[FOTM_12mo_Sub$HEALTH_PHYS>=1 & FOTM_12mo_Sub$HEALTH_PHYS<8]<-"One Week"
 FOTM_12mo_Sub$Health_Phys_Weeks[FOTM_12mo_Sub$HEALTH_PHYS>=8 & FOTM_12mo_Sub$HEALTH_PHYS<30]<-"More Than One Week"
 FOTM_12mo_Sub$Health_Phys_Weeks[FOTM_12mo_Sub$HEALTH_PHYS==30]<-"Every Day"
-
-FOTM_BL_Sub$Health_Phys_Weeks<-revalue(FOTM_BL_Sub$Health_Phys_Weeks, c("None"="1", "One Week"="2", "More Than One Week"="3", "Every Day"="4"))
-
-FOTM_BL_Sub$Health_Phys_Weeks<-revalue(FOTM_BL_Sub$Health_Phys_Weeks, c("None"="1", "One Week"="2", "More Than One Week"="3", "Every Day"="4"))
 
 ################################################################################
 
@@ -189,34 +176,25 @@ FOTM_BL_Sub$Health_Ment_Weeks[FOTM_BL_Sub$HEALTH_MENTAL==0]<-"None"
 FOTM_BL_Sub$Health_Ment_Weeks[FOTM_BL_Sub$HEALTH_MENTAL>=1 & FOTM_BL_Sub$HEALTH_MENTAL<8]<-"One Week"
 FOTM_BL_Sub$Health_Ment_Weeks[FOTM_BL_Sub$HEALTH_MENTAL>=8 & FOTM_BL_Sub$HEALTH_MENTAL<30]<-"More Than One Week"
 FOTM_BL_Sub$Health_Ment_Weeks[FOTM_BL_Sub$HEALTH_MENTAL==30]<-"Every Day"
-FOTM_BL_Sub$Health_Ment_Weeks <- as.factor(FOTM_BL_Sub$Health_Ment_Weeks)
 
 
 FOTM_6mo_Sub$Health_Ment_Weeks[FOTM_6mo_Sub$HEALTH_MENTAL==0]<-"None"
 FOTM_6mo_Sub$Health_Ment_Weeks[FOTM_6mo_Sub$HEALTH_MENTAL>=1 & FOTM_6mo_Sub$HEALTH_MENTAL<8]<-"One Week"
 FOTM_6mo_Sub$Health_Ment_Weeks[FOTM_6mo_Sub$HEALTH_MENTAL>=8 & FOTM_6mo_Sub$HEALTH_MENTAL<30]<-"More Than One Week"
 FOTM_6mo_Sub$Health_Ment_Weeks[FOTM_6mo_Sub$HEALTH_MENTAL==30]<-"Every Day"
-FOTM_6mo_Sub$Health_Ment_Weeks <- as.factor(FOTM_6mo_Sub$Health_Ment_Weeks)
 
 
 FOTM_12mo_Sub$Health_Ment_Weeks[FOTM_12mo_Sub$HEALTH_MENTAL==0]<-"None"
 FOTM_12mo_Sub$Health_Ment_Weeks[FOTM_12mo_Sub$HEALTH_MENTAL>=1 & FOTM_12mo_Sub$HEALTH_MENTAL<8]<-"One Week"
 FOTM_12mo_Sub$Health_Ment_Weeks[FOTM_12mo_Sub$HEALTH_MENTAL>=8 & FOTM_12mo_Sub$HEALTH_MENTAL<30]<-"More Than One Week"
 FOTM_12mo_Sub$Health_Ment_Weeks[FOTM_12mo_Sub$HEALTH_MENTAL==30]<-"Every Day"
-FOTM_12mo_Sub$Health_Ment_Weeks <- as.factor(FOTM_12mo_Sub$Health_Ment_Weeks)
-
-FOTM_BL_Sub$Health_Ment_Weeks<-revalue(FOTM_BL_Sub$Health_Ment_Weeks, c("None"="1", "One Week"="2", "More Than One Week"="3", "Every Day"="4"))
-
-FOTM_6mo_Sub$Health_Ment_Weeks<-revalue(FOTM_6mo_Sub$Health_Ment_Weeks, c("None"="1", "One Week"="2", "More Than One Week"="3", "Every Day"="4"))
-
-FOTM_12mo_Sub$Health_Ment_Weeks<-revalue(FOTM_12mo_Sub$Health_Ment_Weeks, c("None"="1", "One Week"="2", "More Than One Week"="3", "Every Day"="4"))
 
 ################################################################################
-
 
 FOTM_BL_Sub$HISPANIC[FOTM_BL_Sub$HISPANIC == "NO"] <- "No"
 FOTM_BL_Sub$HISPANIC[FOTM_BL_Sub$HISPANIC == "YES"] <- "Yes"
 FOTM_BL_Sub$HISPANIC[FOTM_BL_Sub$HISPANIC == "DON'T KNOW"] <- "Don't Know"
+
 
 FOTM_6mo_Sub$HISPANIC[FOTM_6mo_Sub$HISPANIC == "NO"] <- "No"
 FOTM_6mo_Sub$HISPANIC[FOTM_6mo_Sub$HISPANIC == "YES"] <- "Yes"
@@ -227,11 +205,7 @@ FOTM_12mo_Sub$HISPANIC[FOTM_12mo_Sub$HISPANIC == "NO"] <- "No"
 FOTM_12mo_Sub$HISPANIC[FOTM_12mo_Sub$HISPANIC == "YES"] <- "Yes"
 FOTM_12mo_Sub$HISPANIC[FOTM_12mo_Sub$HISPANIC == "DON'T KNOW"] <- "Don't Know"
 
-FOTM_BL_Sub$HISPANIC<-revalue(FOTM_BL_Sub$HISPANIC, c("NO"="1", "YES"="2"))
-
-
 ################################################################################
-
 
 FOTM_BL_Sub$DISABLED[FOTM_BL_Sub$DISABLED == "DON'T KNOW"] <- NA
 FOTM_BL_Sub$DISABLED[FOTM_BL_Sub$DISABLED == "REFUSED"] <- NA
@@ -244,8 +218,6 @@ FOTM_6mo_Sub$DISABLED[FOTM_6mo_Sub$DISABLED == "REFUSED"] <- NA
 FOTM_12mo_Sub$DISABLED[FOTM_12mo_Sub$DISABLED == "DON'T KNOW"] <- NA
 FOTM_12mo_Sub$DISABLED[FOTM_12mo_Sub$DISABLED == "REFUSED"] <- NA
 
-FOTM_BL_Sub$DISABLED<-revalue(FOTM_BL_Sub$DISABLED, c("NO"="1", "YES"="2"))
-
 ################################################################################
 
 FOTM_BL_Sub$SNAP[FOTM_BL_Sub$SNAP == "DON'T KNOW"] <- NA
@@ -254,31 +226,28 @@ FOTM_6mo_Sub$SNAP[FOTM_6mo_Sub$SNAP == "DON'T KNOW"] <- NA
 
 FOTM_12mo_Sub$SNAP[FOTM_12mo_Sub$SNAP == "DON'T KNOW"] <- NA
 
-FOTM_BL_Sub$SNAP<-revalue(FOTM_BL_Sub$SNAP, c("NO"="1", "YES"="2"))
-
+################################################################################
 
 FOTM_BL_Sub$GENDER[FOTM_BL_Sub$GENDER == "MAN"] <- "Man"
 FOTM_BL_Sub$GENDER[FOTM_BL_Sub$GENDER == "WOMAN"] <- "Woman"
 FOTM_BL_Sub$GENDER[FOTM_BL_Sub$GENDER == "REFUSED"] <- NA
 FOTM_BL_Sub$GENDER[FOTM_BL_Sub$GENDER == "Genderqueer/non-binary, neither exclusively man nor woman"] <- NA
 
+
 FOTM_6mo_Sub$GENDER[FOTM_6mo_Sub$GENDER == "MAN"] <- "Man"
 FOTM_6mo_Sub$GENDER[FOTM_6mo_Sub$GENDER == "WOMAN"] <- "Woman"
 FOTM_6mo_Sub$GENDER[FOTM_6mo_Sub$GENDER == "REFUSED"] <- NA
 FOTM_6mo_Sub$GENDER[FOTM_6mo_Sub$GENDER == "Genderqueer/non-binary, neither exclusively man nor woman"] <- NA
+
 
 FOTM_12mo_Sub$GENDER[FOTM_12mo_Sub$GENDER == "MAN"] <- "Man"
 FOTM_12mo_Sub$GENDER[FOTM_12mo_Sub$GENDER == "WOMAN"] <- "Woman"
 FOTM_12mo_Sub$GENDER[FOTM_12mo_Sub$GENDER == "REFUSED"] <- NA
 FOTM_12mo_Sub$GENDER[FOTM_12mo_Sub$GENDER == "Genderqueer/non-binary, neither exclusively man nor woman"] <- NA
 
-FOTM_BL_Sub$GENDER<-revalue(FOTM_BL_Sub$GENDER, c("Male"="1", "Woman"="2", "Genderqueer"="3"))
+################################################################################
 
-
-
-# RACE # 
-
-FOTM_BL_Sub$RACE[FOTM_BL_Sub$RACE == "RACE_OTHER"] <- "Other"
+FOTM_BL_Sub[FOTM_BL_Sub$RACE == "RACE_OTHER", "RACE"] <- FOTM_BL_Sub[FOTM_BL_Sub$RACE == "RACE_OTHER", "RACE_5_TEXT"]
 FOTM_BL_Sub$RACE[FOTM_BL_Sub$RACE == "RACE_WHITE"] <- "White"
 FOTM_BL_Sub$RACE[FOTM_BL_Sub$RACE == "RACE_BLACK"] <- "Black"
 FOTM_BL_Sub$RACE[FOTM_BL_Sub$RACE == "RACE_AMERICAN_INDIAN"] <- "American Indian"
@@ -309,8 +278,7 @@ FOTM_BL_Sub$RACE[FOTM_BL_Sub$RACE == "American"|FOTM_BL_Sub$RACE == "Asian"|FOTM
                   FOTM_BL_Sub$RACE == "Nathaworoth"|FOTM_BL_Sub$RACE == "Nigerian"|FOTM_BL_Sub$RACE == "Portuguese"|
                   FOTM_BL_Sub$RACE == "Sudamericana"] <- "Other"
 
-freq(FOTM_BL_Sub$RACE, plot=F)
-
+# Race Variable Not Present in 6mo and 12mo
 
 FOTM_6mo_Sub$RACE[FOTM_6mo_Sub$RACE == "RACE_OTHER"] <- "Other"
 FOTM_6mo_Sub$RACE[FOTM_6mo_Sub$RACE == "RACE_WHITE"] <- "White"
@@ -375,19 +343,70 @@ FOTM_12mo_Sub$RACE[FOTM_12mo_Sub$RACE == "American"|FOTM_12mo_Sub$RACE == "Asian
                    FOTM_12mo_Sub$RACE == "Nathaworoth"|FOTM_12mo_Sub$RACE == "Nigerian"|FOTM_12mo_Sub$RACE == "Portuguese"|
                    FOTM_12mo_Sub$RACE == "Sudamericana"] <- "Other"
 
-
-FOTM_BL_Sub$RACE<-revalue(FOTM_BL_Sub$RACE, c("American Indian"="1", "Black"="2",
-                                            "Cape Verdan"="3", "Dominican"="4", "Hispanic"="5",
-                                            "Latina"="6", "Puerto Rican"="7", "Spanish"="8", "White"="9",
-                                            "Other"="10"))
-
 ################################################################################
 # Recode response values to numbers starting at "1" (It's a poLCA thing)
 ################################################################################
 
+FOTM_BL_Sub$Age_Groups <-revalue(FOTM_BL_Sub$Age_Groups, c("26-63 Years"="1", "63-71 Years"="2", "71-78 Years"="3", "Over 78"="4"))
 
+FOTM_6mo_Sub$Age_Groups <-revalue(FOTM_6mo_Sub$Age_Groups, c("26-63 Years"="1", "63-71 Years"="2", "71-78 Years"="3", "Over 78"="4"))
 
+FOTM_12mo_Sub$Age_Groups <-revalue(FOTM_12mo_Sub$Age_Groups, c("26-63 Years"="1", "63-71 Years"="2", "71-78 Years"="3", "Over 78"="4"))
 
+################################################################################
+
+FOTM_BL_Sub_Sub$GENHEALTH<-revalue(FOTM_BL_Sub$GENHEALTH, c("Poor"="1", "Fair"="2", "Good"="3", "Very good"="4", "Excellent"="5"))
+
+FOTM_6mo_Sub$GENHEALTH<-revalue(FOTM_6mo_Sub$GENHEALTH, c("Poor"="1", "Fair"="2", "Good"="3", "Very good"="4", "Excellent"="5"))
+
+FOTM_12mo_Sub$GENHEALTH<-revalue(FOTM_12mo_Sub$GENHEALTH, c("Poor"="1", "Fair"="2", "Good"="3", "Very good"="4", "Excellent"="5"))
+
+################################################################################
+
+FOTM_BL_Sub$HUNGRY<-revalue(FOTM_BL_Sub$HUNGRY, c("NO"="1", "YES"="2"))
+
+FOTM_6mo_Sub$HUNGRY<-revalue(FOTM_6mo_Sub$HUNGRY, c("NO"="1", "YES"="2"))
+
+FOTM_12mo_Sub$HUNGRY<-revalue(FOTM_12mo_Sub$HUNGRY, c("NO"="1", "YES"="2"))
+
+################################################################################
+
+FOTM_BL_Sub$Health_Phys_Weeks<-revalue(FOTM_BL_Sub$Health_Phys_Weeks, c("None"="1", "One Week"="2", "More Than One Week"="3", "Every Day"="4"))
+
+FOTM_BL_Sub$Health_Phys_Weeks<-revalue(FOTM_BL_Sub$Health_Phys_Weeks, c("None"="1", "One Week"="2", "More Than One Week"="3", "Every Day"="4"))
+
+################################################################################
+
+FOTM_BL_Sub$Health_Ment_Weeks<-revalue(FOTM_BL_Sub$Health_Ment_Weeks, c("None"="1", "One Week"="2", "More Than One Week"="3", "Every Day"="4"))
+
+FOTM_6mo_Sub$Health_Ment_Weeks<-revalue(FOTM_6mo_Sub$Health_Ment_Weeks, c("None"="1", "One Week"="2", "More Than One Week"="3", "Every Day"="4"))
+
+FOTM_12mo_Sub$Health_Ment_Weeks<-revalue(FOTM_12mo_Sub$Health_Ment_Weeks, c("None"="1", "One Week"="2", "More Than One Week"="3", "Every Day"="4"))
+
+################################################################################
+
+FOTM_BL_Sub$HISPANIC<-revalue(FOTM_BL_Sub$HISPANIC, c("NO"="1", "YES"="2"))
+
+################################################################################
+
+FOTM_BL_Sub$DISABLED<-revalue(FOTM_BL_Sub$DISABLED, c("NO"="1", "YES"="2"))
+
+################################################################################
+
+FOTM_BL_Sub$SNAP<-revalue(FOTM_BL_Sub$SNAP, c("NO"="1", "YES"="2"))
+
+################################################################################
+
+FOTM_BL_Sub$GENDER<-revalue(FOTM_BL_Sub$GENDER, c("Male"="1", "Woman"="2", "Genderqueer"="3"))
+
+################################################################################
+
+FOTM_BL_Sub$RACE<-revalue(FOTM_BL_Sub$RACE, c("American Indian"="1", "Black"="2",
+                                              "Cape Verdan"="3", "Dominican"="4", "Hispanic"="5",
+                                              "Latina"="6", "Puerto Rican"="7", "Spanish"="8", "White"="9",
+                                              "Other"="10"))
+
+################################################################################
 
 
 
