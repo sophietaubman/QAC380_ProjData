@@ -24,7 +24,7 @@ View(MASTER_CLEAN_DATA_FOTM)
 # Gender ("GENDER")
 # Hispanic ("HISPANIC") YES/NO
 # Race ("RACE") 
-# Employment Status ("RETIRED") Employed/Retired/Unemployed
+# Employment Status ("EMPLOYMENT") Employed/Retired/Unemployed
 # General Health ("GENHEALTH") "Poor" = 1, "Fair, or" = 2, "Good" = 3, "Very good" = 4, "Excellent" = 5
 # Hunger ("HUNGRY") YES/NO
 
@@ -37,11 +37,21 @@ View(MASTER_CLEAN_DATA_FOTM)
 names(MASTER_CLEAN_DATA_FOTM)[names(MASTER_CLEAN_DATA_FOTM)== "Loyalty card number"] <- "LCN"
 
 LCA_subset <- subset(MASTER_CLEAN_DATA_FOTM, select=c(LCN, Age, INSURANCEYN, DISABLED, SNAP, GENDER, HISPANIC, 
-                                                      RACE, RETIRED, GENHEALTH, HUNGRY, RACE_5_TEXT)) 
+                                                      RACE, EMPLOYED, RETIRED, EAT_LESS, RACE_5_TEXT, MEDICARE, 
+                                                      MEDICAID, SNAP_ENOUGH, GENHEALTH, HUNGRY,HEALTH_PHYS_0_TEXT, 
+                                                      HEALTH_MENTAL_0_TEXT)) 
 View(LCA_subset)
 
 LCA_subset <- LCA_subset[-1,]
 View(LCA_subset)
+
+################################################################################
+# Renaming Variables #
+################################################################################
+
+names(LCA_subset)[names(LCA_subset)== "HEALTH_PHYS_0_TEXT"] <- "HEALTH_PHYS"
+names(LCA_subset)[names(LCA_subset)== "HEALTH_MENTAL_0_TEXT"] <- "HEALTH_MENTAL"
+names(LCA_subset)[names(LCA_subset)== "SNAP_ENOUGH"] <- "SNAP_LAST"
 
 ################################################################################
 # Cleaning-Up Variables for LCA #
@@ -115,17 +125,59 @@ LCA_subset$RACE[LCA_subset$RACE == "American"|LCA_subset$RACE == "Asian"|LCA_sub
                   LCA_subset$RACE == "Nathaworoth"|LCA_subset$RACE == "Nigerian"|LCA_subset$RACE == "Portuguese"|
                   LCA_subset$RACE == "Sudamericana"] <- "Other"
 
-# RETIRED #
+# EMPLOYMENT #
 
-LCA_subset$RETIRED[LCA_subset$RETIRED == "DON'T KNOW"|LCA_subset$RETIRED == "REFUSED"] <- NA
+LCA_subset$EMPLOYMENT[LCA_subset$RETIRED == "YES" & LCA_subset$EMPLOYED == "NO"] <- "Retired"
+LCA_subset$EMPLOYMENT[LCA_subset$EMPLOYED == "YES" & LCA_subset$RETIRED == "NO"] <- "Employed"
+LCA_subset$EMPLOYMENT[LCA_subset$RETIRED == "NO" & LCA_subset$EMPLOYED == "NO"] <- "Unemployed"
+LCA_subset$EMPLOYMENT[LCA_subset$RETIRED == "DON'T KNOW" & LCA_subset$EMPLOYED == "NO"] <- NA
+LCA_subset <- LCA_subset[,-10]
+LCA_subset <- LCA_subset[,-9]
+
+
+# MEDICARE #
+
+LCA_subset$MEDICARE[LCA_subset$MEDICARE == "DON'T KNOW"] <- NA
+
+
+# MEDICAID #
+
+LCA_subset$MEDICAID[LCA_subset$MEDICAID == "DON'T KNOW"] <- NA
 
 # HUNGRY #
 
 LCA_subset$HUNGRY[LCA_subset$HUNGRY == "DON'T KNOW"|LCA_subset$HUNGRY == "REFUSED"] <- NA
 
+# SNAP_LAST #
+
+LCA_subset$SNAP_LAST[LCA_subset$SNAP_LAST == "DON'T KNOW"] <- NA
+
+# EAT_LESS #
+
+LCA_subset$EAT_LESS[LCA_subset$EAT_LESS == "DON'T KNOW"] <- NA
+
 # INSURANCEYN #
 
 LCA_subset$INSURANCEYN[LCA_subset$INSURANCEYN == "DON'T KNOW"] <- NA
+
+# Health_Phys_Weeks #
+
+LCA_subset$Health_Phys_Weeks[LCA_subset$HEALTH_PHYS==0]<-"None"
+LCA_subset$Health_Phys_Weeks[LCA_subset$HEALTH_PHYS>=1 & LCA_subset$HEALTH_PHYS<8]<-"One Week"
+LCA_subset$Health_Phys_Weeks[LCA_subset$HEALTH_PHYS>=8 & LCA_subset$HEALTH_PHYS<30]<-"More Than One Week"
+LCA_subset$Health_Phys_Weeks[LCA_subset$HEALTH_PHYS==30]<-"Every Day"
+
+LCA_subset <- LCA_subset[,-17]
+
+
+# Health_Ment_Weeks #
+
+LCA_subset$Health_Ment_Weeks[LCA_subset$HEALTH_MENTAL==0]<-"None"
+LCA_subset$Health_Ment_Weeks[LCA_subset$HEALTH_MENTAL>=1 & LCA_subset$HEALTH_MENTAL<8]<-"One Week"
+LCA_subset$Health_Ment_Weeks[LCA_subset$HEALTH_MENTAL>=8 & LCA_subset$HEALTH_MENTAL<30]<-"More Than One Week"
+LCA_subset$Health_Ment_Weeks[LCA_subset$HEALTH_MENTAL==30]<-"Every Day"
+
+LCA_subset <- LCA_subset[,-17]
 
 
 ################################################################################
@@ -143,8 +195,10 @@ LCA_subset$RACE<-revalue(LCA_subset$RACE, c("American Indian"="1", "Black"="2",
                                             "Cape Verdan"="3", "Dominican"="4", "Hispanic"="5",
                                             "Latina"="6", "Puerto Rican"="7", "Spanish"="8", "White"="9",
                                             "Other"="10"))
-LCA_subset$RETIRED<-revalue(LCA_subset$RETIRED, c("Employed"="1", "Unemployed"="2", "Retired"="3"))
+LCA_subset$EMPLOYMENT<-revalue(LCA_subset$EMPLOYMENT, c("Employed"="1", "Unemployed"="2", "Retired"="3"))
 LCA_subset$HUNGRY<-revalue(LCA_subset$HUNGRY, c("NO"="1", "YES"="2"))
+LCA_subset$Health_Phys_Weeks<-revalue(LCA_subset$Health_Phys_Weeks, c("None"="1", "One Week"="2", "More Than One Week"="3", "Every Day"="4"))
+LCA_subset$Health_Ment_Weeks<-revalue(LCA_subset$Health_Ment_Weeks, c("None"="1", "One Week"="2", "More Than One Week"="3", "Every Day"="4"))
 
 
 ################################################################################
@@ -160,7 +214,7 @@ LCA_subset$GENHEALTH<-as.factor(LCA_subset$GENHEALTH)
 LCA_subset$GENDER<-as.factor(LCA_subset$GENDER)
 LCA_subset$HISPANIC<-as.factor(LCA_subset$HISPANIC)
 LCA_subset$RACE<-as.factor(LCA_subset$RACE)
-LCA_subset$RETIRED<-as.factor(LCA_subset$RETIRED)
+LCA_subset$EMPLOYMENT<-as.factor(LCA_subset$EMPLOYMENT)
 LCA_subset$HUNGRY<-as.factor(LCA_subset$HUNGRY)
 
 ################################################################################
@@ -169,7 +223,7 @@ LCA_subset$HUNGRY<-as.factor(LCA_subset$HUNGRY)
 # Run the LCA specifying a range of classes
 ################################################################################
 
-f <- cbind(Age, INSURANCEYN, DISABLED, SNAP, GENDER, HISPANIC, RACE, RETIRED)~GENHEALTH+HUNGRY
+f <- cbind(Age, INSURANCEYN, DISABLED, SNAP, GENDER, HISPANIC, RACE, EMPLOYMENT)~GENHEALTH+HUNGRY
 
 ################################################################################
 # Latent Class Analysis Specifying 1-3 Classes
