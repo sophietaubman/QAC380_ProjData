@@ -24,7 +24,6 @@
 # Did you ever eat less during the past 12 months to save money? (EAT_LESS) Y/N
 # Did snap provide enough benefits for your family to last the entire month? (SNAP_ENOUGH) Y/N
 
-
 ################################################################################
 # Load libraries needed 
 ################################################################################
@@ -49,6 +48,7 @@ FOTM_BL_Sub <- FOTM_BL[,c("Loyalty card number","Age", "GENDER",
 View(FOTM_BL_Sub)
 
 FOTM_BL_Sub <- FOTM_BL_Sub[-1,]
+
 View(FOTM_BL_Sub)
 
 ################################################################################
@@ -58,8 +58,11 @@ View(FOTM_BL_Sub)
 FOTM_6mo_Sub <- FOTM_6mo[,c("Loyalty card member","YOB","INSURANCE Y/N","MEDICARE",
                                          "MEDICAID","EMPLOYED","RETIRED","DISABLED",
                                          "SNAP","GENHEALTH","HEALTH_PHYS_0_TEXT",
-                                         "HEALTH_MENTAL_0_TEXT","HUNGRY","EAT_LESS","SNAP_ENOUGH")]
+                                         "HEALTH_MENTAL_0_TEXT","HUNGRY","EAT_LESS", "SNAP_ENOUGH")] 
+ 
 View(FOTM_6mo_Sub)
+
+names(FOTM_6mo_Sub)[names(FOTM_6mo_Sub)== "Loyalty card member"] <- "Loyalty card number"
 
 ################################################################################
 # Make New Subset of Data Using Variables of Interest 12 MONTH
@@ -71,10 +74,9 @@ FOTM_12mo_Sub <- FOTM_12mo[,c("Loyalty card member","YOB","INSURANCEYN","MEDICAR
                               "HEALTH_MENTAL_0_TEXT","HUNGRY","EAT_LESS","SNAP_ENOUGH")]
 View(FOTM_12mo_Sub)
 
-
 FOTM_12mo_Sub <- FOTM_12mo_Sub[-1,]
-View(FOTM_12mo_Sub)
 
+names(FOTM_12mo_Sub)[names(FOTM_12mo_Sub)== "Loyalty card member"] <- "Loyalty card number"
 
 ################################################################################
 # Renaming Variables
@@ -149,7 +151,11 @@ FOTM_12mo_Sub$GENHEALTH[FOTM_12mo_Sub$GENHEALTH == "DON'T KNOW"] <- NA
 
 ################################################################################
 
-LCA_subset$HUNGRY[LCA_subset$HUNGRY == "DON'T KNOW"|LCA_subset$HUNGRY == "REFUSED"] <- NA
+FOTM_BL_Sub$HUNGRY[FOTM_BL_Sub$HUNGRY == "DON'T KNOW"|FOTM_BL_Sub$HUNGRY == "REFUSED"] <- NA
+
+FOTM_6mo_Sub$HUNGRY[FOTM_6mo_Sub$HUNGRY == "DON'T KNOW"|FOTM_6mo_Sub$HUNGRY == "REFUSED"] <- NA
+
+FOTM_12mo_Sub$HUNGRY[FOTM_12mo_Sub$HUNGRY == "DON'T KNOW"|FOTM_12mo_Sub$HUNGRY == "REFUSED"] <- NA
 
 ################################################################################
 
@@ -195,15 +201,7 @@ FOTM_BL_Sub$HISPANIC[FOTM_BL_Sub$HISPANIC == "NO"] <- "No"
 FOTM_BL_Sub$HISPANIC[FOTM_BL_Sub$HISPANIC == "YES"] <- "Yes"
 FOTM_BL_Sub$HISPANIC[FOTM_BL_Sub$HISPANIC == "DON'T KNOW"] <- "Don't Know"
 
-
-FOTM_6mo_Sub$HISPANIC[FOTM_6mo_Sub$HISPANIC == "NO"] <- "No"
-FOTM_6mo_Sub$HISPANIC[FOTM_6mo_Sub$HISPANIC == "YES"] <- "Yes"
-FOTM_6mo_Sub$HISPANIC[FOTM_6mo_Sub$HISPANIC == "DON'T KNOW"] <- "Don't Know"
-
-
-FOTM_12mo_Sub$HISPANIC[FOTM_12mo_Sub$HISPANIC == "NO"] <- "No"
-FOTM_12mo_Sub$HISPANIC[FOTM_12mo_Sub$HISPANIC == "YES"] <- "Yes"
-FOTM_12mo_Sub$HISPANIC[FOTM_12mo_Sub$HISPANIC == "DON'T KNOW"] <- "Don't Know"
+# No Hispanic variable for 6 or 12 month #
 
 ################################################################################
 
@@ -233,17 +231,7 @@ FOTM_BL_Sub$GENDER[FOTM_BL_Sub$GENDER == "WOMAN"] <- "Woman"
 FOTM_BL_Sub$GENDER[FOTM_BL_Sub$GENDER == "REFUSED"] <- NA
 FOTM_BL_Sub$GENDER[FOTM_BL_Sub$GENDER == "Genderqueer/non-binary, neither exclusively man nor woman"] <- NA
 
-
-FOTM_6mo_Sub$GENDER[FOTM_6mo_Sub$GENDER == "MAN"] <- "Man"
-FOTM_6mo_Sub$GENDER[FOTM_6mo_Sub$GENDER == "WOMAN"] <- "Woman"
-FOTM_6mo_Sub$GENDER[FOTM_6mo_Sub$GENDER == "REFUSED"] <- NA
-FOTM_6mo_Sub$GENDER[FOTM_6mo_Sub$GENDER == "Genderqueer/non-binary, neither exclusively man nor woman"] <- NA
-
-
-FOTM_12mo_Sub$GENDER[FOTM_12mo_Sub$GENDER == "MAN"] <- "Man"
-FOTM_12mo_Sub$GENDER[FOTM_12mo_Sub$GENDER == "WOMAN"] <- "Woman"
-FOTM_12mo_Sub$GENDER[FOTM_12mo_Sub$GENDER == "REFUSED"] <- NA
-FOTM_12mo_Sub$GENDER[FOTM_12mo_Sub$GENDER == "Genderqueer/non-binary, neither exclusively man nor woman"] <- NA
+# No Gender variable for 6 or 12 month #
 
 ################################################################################
 
@@ -344,10 +332,63 @@ FOTM_12mo_Sub$RACE[FOTM_12mo_Sub$RACE == "American"|FOTM_12mo_Sub$RACE == "Asian
                    FOTM_12mo_Sub$RACE == "Sudamericana"] <- "Other"
 
 ################################################################################
+# Merging Datasets
+################################################################################
+
+FOTM_BL_Sub$`Loyalty card number` <- as.numeric(as.character(FOTM_BL_Sub$`Loyalty card number`))
+
+FOTM_12mo_Sub$`Loyalty card number` <- as.numeric(as.character(FOTM_12mo_Sub$`Loyalty card number`))
+
+alldata <- FOTM_BL_Sub %>%
+  left_join(FOTM_6mo_Sub, by='Loyalty card number') %>%
+  left_join(FOTM_12mo_Sub, by='Loyalty card number')
+
+View(alldata)
+
+alldata_Sub <- alldata[,c("Loyalty card number","Age","HISPANIC","GENDER","RACE",
+                          "GENHEALTH","GENHEALTH.x","GENHEALTH.y","YOB.x",
+                          "Employment","Employment.x","Employment.y","Health_Ment_Weeks",
+                          "Health_Ment_Weeks.x","Health_Ment_Weeks.y","Health_Phys_Weeks",
+                          "Health_Phys_Weeks.x","Health_Phys_Weeks.y")]
+View(alldata_Sub)
+
+col_order <- c("Loyalty card number","GENDER","HISPANIC","RACE","Age","YOB.x",
+               "GENHEALTH.x","GENHEALTH.y","GENHEALTH",
+               "Employment.x","Employment.y","Employment","Health_Ment_Weeks.x",
+               "Health_Ment_Weeks.y","Health_Ment_Weeks","Health_Phys_Weeks.x",
+               "Health_Phys_Weeks.y","Health_Phys_Weeks")
+
+alldata_Sub <- alldata_Sub[, col_order]
+
+View(alldata_Sub)
+
+names(alldata_Sub)[names(alldata_Sub)== "YOB.x"] <- "YOB"
+
+names(alldata_Sub)[names(alldata_Sub)== "GENHEALTH.x"] <- "GENHEALTH_BL"
+names(alldata_Sub)[names(alldata_Sub)== "GENHEALTH.y"] <- "GENHEALTH_6mo"
+names(alldata_Sub)[names(alldata_Sub)== "GENHEALTH"] <- "GENHEALTH_12mo"
+
+names(alldata_Sub)[names(alldata_Sub)== "Employment.x"] <- "Employment_BL"
+names(alldata_Sub)[names(alldata_Sub)== "Employment.y"] <- "Employment_6mo"
+names(alldata_Sub)[names(alldata_Sub)== "Employment"] <- "Employment_12mo"
+
+names(alldata_Sub)[names(alldata_Sub)== "Health_Ment_Weeks.x"] <- "Health_Ment_Weeks_BL"
+names(alldata_Sub)[names(alldata_Sub)== "Health_Ment_Weeks.y"] <- "Health_Ment_Weeks_6mo"
+names(alldata_Sub)[names(alldata_Sub)== "Health_Ment_Weeks"] <- "Health_Ment_Weeks_12mo"
+
+names(alldata_Sub)[names(alldata_Sub)== "Health_Phys_Weeks.x"] <- "Health_Phys_Weeks_BL"
+names(alldata_Sub)[names(alldata_Sub)== "Health_Phys_Weeks.y"] <- "Health_Phys_Weeks_6mo"
+names(alldata_Sub)[names(alldata_Sub)== "Health_Phys_Weeks"] <- "Health_Phys_Weeks_12mo"
+
+View(alldata_Sub)
+
+################################################################################
 # Recode response values to numbers starting at "1" (It's a poLCA thing)
 ################################################################################
 
 FOTM_BL_Sub$Age_Groups <-revalue(FOTM_BL_Sub$Age_Groups, c("26-63 Years"="1", "63-71 Years"="2", "71-78 Years"="3", "Over 78"="4"))
+
+# No Age (only YOB) variable for 6 or 12 month #
 
 FOTM_6mo_Sub$Age_Groups <-revalue(FOTM_6mo_Sub$Age_Groups, c("26-63 Years"="1", "63-71 Years"="2", "71-78 Years"="3", "Over 78"="4"))
 
