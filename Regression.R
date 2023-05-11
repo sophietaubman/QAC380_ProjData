@@ -303,52 +303,8 @@ alldata_Sub_graphs <- alldata_Sub[,c("Loyalty card number","GENDER","HISPANIC","
                                      "Health_Ment_Weeks_6mo","Health_Ment_Weeks_12mo","Health_Phys_Weeks_BL",
                                      "Health_Phys_Weeks_6mo","Health_Phys_Weeks_12mo")]
 
+# Simple linear regression if explanatory variable is quantitative
 
-Simple
-# if explanatory var is quantitative
-my.lm <- lm(GENHEALTH_BL ~ RACE, data = alldata_Sub) 
-summary(my.lm)
-
-# if explanatory var is categorical
-my.lm <- lm(GENHEALTH_BL ~ factor(Employment_BL), data = alldata_Sub) 
-summary(my.lm)
-
-Logistic
-# If you have many explanatory variables, you can just continue to add them in
-
-my.logreg <- glm(BinaryResponseVar ~ GENHEALTH_BL + ExplanatoryVar2, data = myData, family = "binomial") 
-summary(my.logreg)  # for p-values 
-exp(my.logreg$coefficients)  # for odds ratios 
-exp(confint(my.logreg))  # for confidence intervals on the odds ratios
-
-Multiple
-# if a predictor var is categorical, wrap the var with factor() (e.g. factor(CategExtraVar) )
-
-my.lm <- lm(GENHEALTH_BL ~ QuantExplanatoryVar + factor(CategExtraVar), data = myData) 
-summary(my.lm)
-
-
-# “Regression with Interaction Term”
-
-# Incorporating Interaction Term when Response is Quantitative (Multiple Linear Regression)
-# to incorporate a statistical interaction between two of your explanatory variables
-
-my.lm <- lm(QuantResponseVar ~ ExplanatoryVar + CategoricalModeratingVar +
-              ExplanatoryVar*CategoricalModeratingVar, data = myData)
-summary(my.lm)
-
-# Incorporating Interaction Term when Response is Categorical (Logistic)
-# if categorical variable is encoded as numeric, wrap it around with the factor() function (e.g. factor(ExplanatoryVar3))
-
-my.logreg <- glm(BinaryResponseVar ~ ExplanatoryVar + CategoricalModeratingVar + ExplanatoryVar*CategoricalModeratingVar, data = myData, family = "binomial")
-summary(my.logreg) # for p-values
-exp(my.logreg$coefficients) # for odds ratios
-exp(confint(my.logreg)) # for confidence intervals on the odds ratios
-
-
-
-
-
-
-
+race.lm <- lm(GENHEALTH_BL ~ RACE, data = alldata_Sub) 
+summary(race.lm)
 
